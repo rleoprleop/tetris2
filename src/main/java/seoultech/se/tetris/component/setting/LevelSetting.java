@@ -2,22 +2,26 @@ package seoultech.se.tetris.component.setting;
 
 import seoultech.se.tetris.component.Setting;
 import seoultech.se.tetris.component.TetrisMenu;
+import seoultech.se.tetris.component.model.Data;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class LevelSetting extends JFrame {
     private Container container;
     private JPanel backButtonPanel, menuPanel;
     private JButton backButton;
     private JButton easy, normal, hard;
+    private Data data;
 
-    public LevelSetting(int x, int y) {
+    public LevelSetting(int x, int y, Data settingdata) {
         this.setSize(500, 600);
         this.setLocation(x, y);
         this.setLayout(new BorderLayout(25, 25));
+        this.data = settingdata;
 
         setbackButtonPanel();
         setMenuPanel();
@@ -67,20 +71,43 @@ public class LevelSetting extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (backButton.equals(e.getSource())) {
-                new Setting(getThis().getLocation().x, getThis().getLocation().y);
-                getThis().dispose();
+                go_back();
             }
             else if (easy.equals(e.getSource())) { // restartButton pressed
-
+                try {
+                    data.setLevel("easy");
+                    data.saveSetting();
+                    go_back();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
             else if (normal.equals(e.getSource())) { // restartButton pressed
+                try {
+                    data.setLevel("normal");
+                    data.saveSetting();
+                    go_back();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
 
             }
             else { // restartButton pressed
-
+                try {
+                    data.setLevel("hard");
+                    data.saveSetting();
+                    go_back();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         }
     };
+
+    private void go_back(){
+        new Setting(getThis().getLocation().x, getThis().getLocation().y);
+        getThis().dispose();
+    }
 
     private JFrame getThis() {return this;}
 }

@@ -4,7 +4,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.json.*;
 
 import java.io.*;
 
@@ -41,7 +40,7 @@ public class Data {
     public void setLevel(String lv) throws IOException {
         level = lv;
         js.put("Level", "" + lv + "");
-
+        //System.out.println("Set Level : " + lv);
     }
 
     public void setColor_weak(String colorweak) throws IOException {
@@ -53,6 +52,7 @@ public class Data {
     public void setDisplay(String dp) throws IOException {
         display = dp;
         js.put("Display","" + dp + "");
+        System.out.println("Set Display : " + dp);
 
     }
 
@@ -112,9 +112,11 @@ public class Data {
         js.put("down",js.get("ori_down"));
         System.out.println(js);
 
-        writer = new BufferedWriter(new FileWriter("src/main/java/seoultech/se/tetris/component/model/setting.json"));
-        writer.write(js.toJSONString());
-        writer.close();
+        saveSetting();
+
+//        writer = new BufferedWriter(new FileWriter("src/main/java/seoultech/se/tetris/component/model/setting.json"));
+//        writer.write(js.toJSONString());
+//        writer.close();
     }
 
     private int convertInt(String code) {

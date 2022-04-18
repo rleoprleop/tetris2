@@ -1,23 +1,33 @@
 package seoultech.se.tetris.component.setting;
 
+import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import seoultech.se.tetris.component.Setting;
-import seoultech.se.tetris.component.TetrisMenu;
+import seoultech.se.tetris.component.model.Data;
+import seoultech.se.tetris.component.model.KeystrokeUtil;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.IOException;
+
+import static java.lang.Boolean.TRUE;
 
 public class KeySetting extends JFrame {
     private Container container;
     private JPanel backButtonPanel, menuPanel;
     private JButton backButton;
-    private JButton down, up, rotate, hardDrop, pause;
+    private JButton right, left, rotate, hardDrop, pause,down;
+    private JLabel currLeft,currDown,currRight,currRotate,currHarddrop,currPause;
+    private Data data;
 
-    public KeySetting(int x, int y) {
+    public KeySetting(int x, int y, Data settingdata) {
         this.setSize(500, 600);
         this.setLocation(x, y);
         this.setLayout(new BorderLayout(25, 25));
+        this.data = settingdata;
 
         setbackButtonPanel();
         setMenuPanel();
@@ -36,69 +46,105 @@ public class KeySetting extends JFrame {
         backButtonPanel.add(backButton);
     }
 
+    KeystrokeUtil keyutil = new KeystrokeUtil();
     private void setMenuPanel(){
-        menuPanel = new JPanel(new GridLayout(5,1,5,0));
+        menuPanel = new JPanel(new GridLayout(6,1,5,0));
 
-        JPanel upPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        up = new JButton("up");
-        up.setPreferredSize(new Dimension(180, 60));
-        up.addActionListener(listner);
-        upPanel.add(up);
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        left = new JButton("Move Left");
+        left.setPreferredSize(new Dimension(180, 60));
+        left.addActionListener(listner);
+        currLeft = new JLabel(keyutil.getKeyText(data.getLeft()));
+        currLeft.setPreferredSize(new Dimension(180,60));
+        leftPanel.add(left);
+        leftPanel.add(currLeft);
 
-        JPanel downPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        down = new JButton("down");
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        right = new JButton("Move Right");
+        right.setPreferredSize(new Dimension(180, 60));
+        right.addActionListener(listner);
+        currRight = new JLabel(keyutil.getKeyText(data.getRight()));
+        currRight.setPreferredSize(new Dimension(180,60));
+        rightPanel.add(right);
+        rightPanel.add(currRight);
+
+        JPanel downPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        down = new JButton("Move Down");
         down.setPreferredSize(new Dimension(180, 60));
         down.addActionListener(listner);
+        currDown = new JLabel(keyutil.getKeyText(data.getDown()));
+        currDown.setPreferredSize(new Dimension(180,60));
         downPanel.add(down);
+        downPanel.add(currDown);
 
-        JPanel rotatePanel  = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        rotate = new JButton("rotate");
+        JPanel rotatePanel  = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        rotate = new JButton("Rotate");
         rotate.setPreferredSize(new Dimension(180, 60));
         rotate.addActionListener(listner);
+        currRotate = new JLabel(keyutil.getKeyText(data.getRotate()));
+        currRotate.setPreferredSize(new Dimension(180,60));
         rotatePanel.add(rotate);
+        rotatePanel.add(currRotate);
 
-        JPanel hardDropPanel  = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        hardDrop = new JButton("hardDrop");
+        JPanel hardDropPanel  = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        hardDrop = new JButton("HardDrop");
         hardDrop.setPreferredSize(new Dimension(180, 60));
         hardDrop.addActionListener(listner);
+        currHarddrop = new JLabel(keyutil.getKeyText(data.getHarddrop()));
+        currHarddrop.setPreferredSize(new Dimension(180,60));
         hardDropPanel.add(hardDrop);
+        hardDropPanel.add(currHarddrop);
 
-        JPanel pausePanel  = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        pause = new JButton("pause");
+        JPanel pausePanel  = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        pause = new JButton("Pause");
         pause.setPreferredSize(new Dimension(180, 60));
         pause.addActionListener(listner);
+        currPause = new JLabel(keyutil.getKeyText(data.getPause()));
+        currPause.setPreferredSize(new Dimension(180,60));
         pausePanel.add(pause);
+        pausePanel.add(currPause);
 
-        menuPanel.add(upPanel);
+        menuPanel.add(leftPanel);
+        menuPanel.add(rightPanel);
         menuPanel.add(downPanel);
         menuPanel.add(rotatePanel);
         menuPanel.add(hardDropPanel);
         menuPanel.add(pausePanel);
     }
+
     ActionListener listner = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (backButton.equals(e.getSource())) { //terminateButton pressed
-                new Setting(getThis().getLocation().x, getThis().getLocation().y);
-                getThis().dispose();
+                go_back();
             }
-            else if (up.equals(e.getSource())) { // restartButton pressed
-
+            else if (left.equals(e.getSource())) { // restartButton pressed
+                currLeft.setText(keyutil.getKeyText(data.getLeft()));
+            }
+            else if (right.equals(e.getSource())) { // restartButton pressed
+                currRight.setText(keyutil.getKeyText(data.getRight()));
             }
             else if (down.equals(e.getSource())) { // restartButton pressed
-
+                currDown.setText(keyutil.getKeyText(data.getDown()));
             }
             else if (rotate.equals(e.getSource())) { // restartButton pressed
-
+                currRotate.setText(keyutil.getKeyText(data.getRotate()));
             }
             else if (hardDrop.equals(e.getSource())) { // restartButton pressed
-
+                currHarddrop.setText(keyutil.getKeyText(data.getHarddrop()));
+            }
+            else if (pause.equals(e.getSource())) { // restartButton pressed
+                currPause.setText(keyutil.getKeyText(data.getPause()));
             }
             else { // restartButton pressed
-
             }
         }
     };
+
+    private void go_back() {
+        new Setting(getThis().getLocation().x, getThis().getLocation().y);
+        getThis().dispose();
+    }
 
     private JFrame getThis() {return this;}
 

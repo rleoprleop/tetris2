@@ -1,6 +1,7 @@
 package seoultech.se.tetris.component;
 
 import seoultech.se.tetris.component.model.Data;
+import seoultech.se.tetris.component.setting.ColorWeakSetting;
 import seoultech.se.tetris.component.setting.DisplaySetting;
 import seoultech.se.tetris.component.setting.KeySetting;
 import seoultech.se.tetris.component.setting.LevelSetting;
@@ -10,6 +11,7 @@ import javax.swing.text.BoxView;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import javax.swing.ImageIcon;
 
 public class Setting extends JFrame {
@@ -22,40 +24,21 @@ public class Setting extends JFrame {
 
     public Setting(int x, int y) {
 
-        JPanel back = new JPanel(){
-            public void paintComponent(Graphics g){
-                g.drawImage(background.getImage(),0,0,null);
-                setOpaque(false);
-                super.paintComponent(g);
-            }
-        };
+        this.setLayout(new BorderLayout());
         this.setFocusable(true);
         this.setSize(510, 635);
         this.setLocation(x, y);
-
-        //test
-        JPanel testpn = new JPanel();
-        JButton testbt = new JButton("back");
-        testpn.setLayout(null);
-        testpn.setOpaque(false);
-        testbt.setSize(100,60);
-        testbt.setOpaque(false);
-        testbt.setBounds(10,10,100,50);
-        testpn.add(testbt);
-        this.add(testpn);
-
-
-
-
-
-
+        try {
+            settingdata = new Data();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         setbackButtonPanel();
         setMenuPanel();
 
-        //this.add(backButtonPanel);
-        //back.add(menuPanel, BorderLayout.CENTER);
-        this.getContentPane().add(back);
+        this.add(backButtonPanel, BorderLayout.NORTH);
+        this.add(menuPanel, BorderLayout.CENTER);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setVisible(true);
     }
@@ -150,22 +133,27 @@ public class Setting extends JFrame {
                 getThis().dispose();
             }
             else if (level.equals(e.getSource())) { // restartButton pressed
-                new LevelSetting(getThis().getLocation().x, getThis().getLocation().y);
+                new LevelSetting(getThis().getLocation().x, getThis().getLocation().y, settingdata);
                 getThis().dispose();
             }
             else if (colorWeak.equals(e.getSource())) { // restartButton pressed
-
+                new ColorWeakSetting(getThis().getLocation().x, getThis().getLocation().y, settingdata);
+                getThis().dispose();
             }
             else if (display.equals(e.getSource())) { // restartButton pressed
-                new DisplaySetting(getThis().getLocation().x, getThis().getLocation().y);
+                new DisplaySetting(getThis().getLocation().x, getThis().getLocation().y, settingdata);
                 getThis().dispose();
             }
             else if (keySetting.equals(e.getSource())) { // restartButton pressed
-                new KeySetting(getThis().getLocation().x, getThis().getLocation().y);
+                new KeySetting(getThis().getLocation().x, getThis().getLocation().y, settingdata);
                 getThis().dispose();
             }
-            else { // restartButton pressed
-
+            else if (reset.equals(e.getSource())) { // restartButton pressed
+                try {
+                    settingdata.resetting();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         }
     };

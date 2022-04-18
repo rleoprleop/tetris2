@@ -1,7 +1,6 @@
 package seoultech.se.tetris.component.setting;
 
 import seoultech.se.tetris.component.Setting;
-import seoultech.se.tetris.component.TetrisMenu;
 import seoultech.se.tetris.component.model.Data;
 
 import javax.swing.*;
@@ -10,14 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-public class DisplaySetting extends JFrame {
+public class ColorWeakSetting extends JFrame {
     private Container container;
     private JPanel backButtonPanel, menuPanel;
     private JButton backButton;
-    private JButton big, normal, small;
+    private JButton on, off;
     private Data data;
 
-    public DisplaySetting(int x, int y, Data settingdata) {
+    public ColorWeakSetting(int x, int y, Data settingdata) {
         this.setSize(500, 600);
         this.setLocation(x, y);
         this.setLayout(new BorderLayout(25, 25));
@@ -42,27 +41,21 @@ public class DisplaySetting extends JFrame {
     private void setMenuPanel(){
         menuPanel = new JPanel(new GridLayout(5,1,5,0));
 
-        JPanel bigPanel = new JPanel();
-        big = new JButton("big");
-        big.setPreferredSize(new Dimension(180, 60));
-        big.addActionListener(listner);
-        bigPanel.add(big);
+        JPanel onPanel = new JPanel();
+        on = new JButton("on");
+        on.setPreferredSize(new Dimension(180, 60));
+        on.addActionListener(listner);
+        onPanel.add(on);
 
-        JPanel normalPanel = new JPanel();
-        normal = new JButton("normal");
-        normal.setPreferredSize(new Dimension(180, 60));
-        normal.addActionListener(listner);
-        normalPanel.add(normal);
+        JPanel offPanel = new JPanel();
+        off = new JButton("off");
+        off.setPreferredSize(new Dimension(180, 60));
+        off.addActionListener(listner);
+        offPanel.add(off);
 
-        JPanel smallPanel  = new JPanel();
-        small = new JButton("small");
-        small.setPreferredSize(new Dimension(180, 60));
-        small.addActionListener(listner);
-        smallPanel.add(small);
 
-        menuPanel.add(bigPanel);
-        menuPanel.add(normalPanel);
-        menuPanel.add(smallPanel);
+        menuPanel.add(onPanel);
+        menuPanel.add(offPanel);
 
     }
     ActionListener listner = new ActionListener() {
@@ -71,9 +64,9 @@ public class DisplaySetting extends JFrame {
             if (backButton.equals(e.getSource())) {
                 go_back();
             }
-            else if (big.equals(e.getSource())) { // restartButton pressed
+            else if (on.equals(e.getSource())) { // restartButton pressed
                 try {
-                    data.setDisplay("big");
+                    data.setColor_weak("on");
                     data.saveSetting();
                     go_back();
                 } catch (IOException ioException) {
@@ -81,18 +74,9 @@ public class DisplaySetting extends JFrame {
                 }
 
             }
-            else if (normal.equals(e.getSource())) { // restartButton pressed
+            else if (off.equals(e.getSource())) { // restartButton pressed
                 try {
-                    data.setDisplay("normal");
-                    data.saveSetting();
-                    go_back();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }
-            else { // restartButton pressed
-                try {
-                    data.setDisplay("small");
+                    data.setColor_weak("off");
                     data.saveSetting();
                     go_back();
                 } catch (IOException ioException) {
