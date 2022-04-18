@@ -1,5 +1,7 @@
 package seoultech.se.tetris.component;
 
+import seoultech.se.tetris.component.model.ScoreDataManager;
+
 import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -115,8 +117,8 @@ public class TetrisMenu extends JFrame {
                 this.dispose();
                 break;
             case 1: //score board class
-//                new ScoreBoard(this.getLocation().x, this.getLocation().y);
-                new EndGame(this.getLocation().x, this.getLocation().y, 50);
+                new ScoreBoard(this.getLocation().x, this.getLocation().y);
+//                new EndGame(this.getLocation().x, this.getLocation().y, 50, ScoreDataManager.getInstance().getArrKey());
                 this.dispose();
                 break;
             case 2: //setting class

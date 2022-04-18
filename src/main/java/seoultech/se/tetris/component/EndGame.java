@@ -3,7 +3,8 @@ package seoultech.se.tetris.component;
 import seoultech.se.tetris.component.model.ScoreDataManager;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,13 +14,15 @@ public class EndGame extends JFrame {
     private JPanel scorePane, scoreBoardPane, textPane, menuPane;
     private JTextField writeName;
     private JButton restart, terminate, addButton;
-    private int score;
+    private final int score;
     private JScrollPane scrollPane;
     private JTable scoreTable;
     private boolean isAdd = false;
+    private String mode;
 
-    public EndGame(int x, int y, int score) {
+    public EndGame(int x, int y, int score, String mode) {
         this.score = score;
+        this.mode = mode;
         this.setLocation(x,y);
         this.setSize(600,500);
         this.setLayout(new BorderLayout());
@@ -45,12 +48,12 @@ public class EndGame extends JFrame {
     void setScoreBoardPane(){
         scoreBoardPane = new JPanel(new FlowLayout());
 
-        scoreTable = ScoreDataManager.getInstance().getTable();
+        scoreTable = ScoreDataManager.getInstance().getTable(mode);
         scrollPane = new JScrollPane(scoreTable);
         scrollPane.setPreferredSize(new Dimension(this.getWidth() - 10, this.getHeight() / 2));
         scoreBoardPane.add(scrollPane);
 
-        if(isAdd == false) {
+        if(!isAdd) {
             setTextPane();
         }
     }
@@ -58,7 +61,7 @@ public class EndGame extends JFrame {
     void setTextPane(){
         textPane = new JPanel(new FlowLayout());
 
-        if(score > ScoreDataManager.getInstance().getLastScore()){
+        if(score > ScoreDataManager.getInstance().getLastScore(mode)){
             writeName = new JTextField(27);
 
             addButton = new JButton("등록");
@@ -113,10 +116,12 @@ public class EndGame extends JFrame {
                     JOptionPane errorPane = new JOptionPane();
                     errorPane.showMessageDialog(null, "적어도 하나 입력해야 합니다..","KEY_ERROR", JOptionPane.WARNING_MESSAGE);
                 } else {
-                    ScoreDataManager.getInstance().addScoreData(writeName.getText(), score);
+                    ScoreDataManager.getInstance().addScoreData(writeName.getText(), score, mode);
                     scoreBoardPane.removeAll();
                     isAdd = true;
                     setScoreBoardPane();
+                    int idx = ScoreDataManager.getInstance().getRowsFromTable(writeName.getText(), score, mode);
+                    // 이름 같고 스코어 같으면 에러 날수 있음..
 
                     getThis().add(scoreBoardPane,BorderLayout.CENTER);
                     scoreBoardPane.revalidate();
@@ -131,6 +136,19 @@ public class EndGame extends JFrame {
      private JFrame getThis(){
         return this;
     }
+    public class MyTableCellRenderer extends DefaultTableCellRenderer {
 
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                if(column == ScoreDataManager.getInstance().getRowsFromTable(writeName.getText(), score, mode)) {
+                    Font myFont1 = new Font("Serif", Font.BOLD, 12);
+                    cell.setFont(myFont1);
+                }
+            }
+            return cell;
+        }
+    }
 }
 

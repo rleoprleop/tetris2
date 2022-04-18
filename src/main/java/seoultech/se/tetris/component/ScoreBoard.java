@@ -36,11 +36,20 @@ public class ScoreBoard  extends JFrame{
 
    private void setScoreTablePane () {
 //       JTable scoreTable = new JTable(ScoreDataManager.getInstance().getTable());
-       JScrollPane scrollPane = new JScrollPane(ScoreDataManager.getInstance().getTable());
+       JLabel label = new JLabel("Normal Mode");
+       JLabel label2 = new JLabel("Item Mode");
+       JScrollPane scrollPane = new JScrollPane(ScoreDataManager.getInstance().getTable(ScoreDataManager.getInstance().getArrKey()));
+       JScrollPane itemScrollPane = new JScrollPane(ScoreDataManager.getInstance().getTable(ScoreDataManager.getInstance().getItemKey()));
+       scrollPane.setPreferredSize(new Dimension(this.getWidth() - 10, this.getHeight() / 3));
+       itemScrollPane.setPreferredSize(new Dimension(this.getWidth() - 10, this.getHeight() / 3));
+
 
        tablePane = new JPanel();
        tablePane.setLayout(new FlowLayout());
+       tablePane.add(label);
        tablePane.add(scrollPane);
+       tablePane.add(label2);
+       tablePane.add(itemScrollPane);
    }
 
    private void disPose() {

@@ -24,6 +24,7 @@ import seoultech.se.tetris.blocks.SBlock;
 import seoultech.se.tetris.blocks.TBlock;
 import seoultech.se.tetris.blocks.ZBlock;
 import seoultech.se.tetris.component.model.Data;
+import seoultech.se.tetris.component.model.ScoreDataManager;
 
 import static java.awt.event.KeyEvent.VK_A;
 
@@ -450,7 +451,7 @@ public class Board extends JFrame {
 			y = 0;
 			if(isBlocked('d')){
 				timer.stop();
-				new EndGame(this.getLocation().x, this.getLocation().y, score);
+				new EndGame(this.getLocation().x, this.getLocation().y, score, ScoreDataManager.getInstance().getArrKey());
 				this.dispose();
 			}
 		}
