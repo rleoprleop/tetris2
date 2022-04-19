@@ -3,7 +3,9 @@ package seoultech.se.tetris.component;
 import seoultech.se.tetris.component.model.ScoreDataManager;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,13 +15,15 @@ public class EndGame extends JFrame {
     private JPanel scorePane, scoreBoardPane, textPane, menuPane;
     private JTextField writeName;
     private JButton restart, terminate, addButton;
-    private int score;
+    private final int score;
     private JScrollPane scrollPane;
     private JTable scoreTable;
     private boolean isAdd = false;
+    private String mode;
 
-    public EndGame(int x, int y, int score) {
+    public EndGame(int x, int y, int score, String mode) {
         this.score = score;
+        this.mode = mode;
         this.setLocation(x,y);
         this.setSize(600,500);
         this.setLayout(new BorderLayout());
@@ -45,12 +49,13 @@ public class EndGame extends JFrame {
     void setScoreBoardPane(){
         scoreBoardPane = new JPanel(new FlowLayout());
 
-        scoreTable = ScoreDataManager.getInstance().getTable();
+        scoreTable = ScoreDataManager.getInstance().getTable(mode);
+
         scrollPane = new JScrollPane(scoreTable);
         scrollPane.setPreferredSize(new Dimension(this.getWidth() - 10, this.getHeight() / 2));
         scoreBoardPane.add(scrollPane);
 
-        if(isAdd == false) {
+        if(!isAdd) {
             setTextPane();
         }
     }
@@ -58,7 +63,7 @@ public class EndGame extends JFrame {
     void setTextPane(){
         textPane = new JPanel(new FlowLayout());
 
-        if(score > ScoreDataManager.getInstance().getLastScore()){
+        if(score > ScoreDataManager.getInstance().getLastScore(mode)){
             writeName = new JTextField(27);
 
             addButton = new JButton("등록");
@@ -99,7 +104,7 @@ public class EndGame extends JFrame {
             }
             else if(restart.equals(e.getSource())){ // restartButton pressed
                 try {
-                    new Board(getLocation().x, getLocation().y);
+                    new Board(getLocation().x, getLocation().y, mode);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -113,22 +118,42 @@ public class EndGame extends JFrame {
                     JOptionPane errorPane = new JOptionPane();
                     errorPane.showMessageDialog(null, "적어도 하나 입력해야 합니다..","KEY_ERROR", JOptionPane.WARNING_MESSAGE);
                 } else {
-                    ScoreDataManager.getInstance().addScoreData(writeName.getText(), score);
+                    ScoreDataManager.getInstance().addScoreData(writeName.getText(), score, mode);
                     scoreBoardPane.removeAll();
                     isAdd = true;
                     setScoreBoardPane();
-
+                    int idx = ScoreDataManager.getInstance().getRowsFromTable(writeName.getText(), score, mode);
+                    // 이름 같고 스코어 같으면 에러 날수 있음..
+                    scoreTable.setDefaultRenderer(Object.class, new MyTableCellRenderer());
                     getThis().add(scoreBoardPane,BorderLayout.CENTER);
                     scoreBoardPane.revalidate();
                     scoreBoardPane.repaint();
                 }
             }
         }
+
     };
-    void disPose() {
+
+    public class MyTableCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                int idx = ScoreDataManager.getInstance().getRowsFromTable(writeName.getText(), score, mode);
+                if(row==idx) {
+                    Font myFont1 = new Font("Serif", Font.BOLD, 15);
+//                    cell.setBackground(Color.CYAN);
+                    cell.setFont(myFont1);
+                }
+            }
+            return cell;
+        }
+    }
+
+    private void disPose() {
         this.dispose();
     }
-     private JFrame getThis(){
+    private JFrame getThis(){
         return this;
     }
 

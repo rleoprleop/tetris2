@@ -17,9 +17,13 @@ import java.util.List;
 public class ScoreDataManager {
     private final String KEY_SCORE = "점수";
     private final String KEY_NAME = "이름";
-    private final String KEY_ARR = "score";
+    private final String KEY_MODE = "난이도";
+
+    private final String KEY_NORM = "normalScore";
+    private final String KEY_ITEM = "itemScore";
     private final String FILEPATH = "src/main/java/seoultech/se/tetris/component/model/ScoreData.json";
     private final String column[]={"순위","Player Name","Score"};
+
 
     // private final String FILEPATH = "seoultech/se/tetris/component/model/ScoreData.json";
     private ScoreDataManager() {
@@ -34,14 +38,20 @@ public class ScoreDataManager {
         return LazyHolder.dataManager;
     }
 
-    private JSONArray readData() {
-        JSONArray scoreData = new JSONArray();
+   public String getItemKey(){
+        return this.KEY_ITEM;
+   }
+
+   public String getNormKey(){
+        return this.KEY_NORM;
+   }
+
+    private JSONObject readData() {
+        JSONObject scoreData = new JSONObject();
         try{
             JSONParser parser = new JSONParser();
             Reader reader = new FileReader(FILEPATH);
-            JSONObject scoreObject = (JSONObject) parser.parse(reader);
-            scoreData = (JSONArray) scoreObject.get("score");
-            //System.out.println(parser.parse(reader).toString());
+            scoreData = (JSONObject) parser.parse(reader);
         } catch (IOException | ParseException e){
             e.printStackTrace();
         }
@@ -61,37 +71,29 @@ public class ScoreDataManager {
     }
 
 
-    public void addScoreData(String name, int score){
-        JSONArray scoreData = readData();
+    public void addScoreData(String name, int score, String mode){
+        JSONObject scoreData = readData();
+        JSONArray scoreArr = (JSONArray) scoreData.get(mode);
+
+//        JSONArray scoreData = readData();
         JSONObject data = new JSONObject();
-        if(scoreData.size() == 10){
-            scoreData.remove(9);
+        if(scoreArr.size() == 10){
+            scoreArr.remove(9);
         }
         data.put(KEY_SCORE, score);
         data.put(KEY_NAME, name);
-        scoreData.add(data);
-        fetchData(scoreData);
+        scoreArr.add(data);
+        scoreData.put(mode, scoreArr);
+        fetchData(scoreData, mode);
     }
 
-    public int getLastScore() {
-        int score = 0;
-        JSONArray scoreData = readData();
-        if(scoreData.size() < 10) return 0;
-
-        else {
-            int lastIdx = scoreData.size() - 1;
-            JSONObject element = (JSONObject) scoreData.get(lastIdx);
-            score = Integer.parseInt(element.get(KEY_SCORE).toString());
-            return score;
-        }
-
-    }
-    public void fetchData (JSONArray scoreData){
-//        JSONArray sortedData = new JSONArray();
-
+    public void fetchData (JSONObject scoreData, String mode){
+        System.out.println(scoreData.get(KEY_NORM).toString());
+        System.out.println(scoreData.get(KEY_ITEM).toString());
         List<JSONObject> jsonValues = new ArrayList<JSONObject>();
-        for(int i = 0; i<scoreData.size(); i++) {
-            jsonValues.add((JSONObject) scoreData.get(i));
+        JSONArray scoreArr = (JSONArray) scoreData.get(mode);
+        for(int i = 0; i<scoreArr.size(); i++) {
+            jsonValues.add((JSONObject) scoreArr.get(i));
         }
 
         Collections.sort(jsonValues, new Comparator<JSONObject>() {
@@ -103,26 +105,49 @@ public class ScoreDataManager {
                 scoreA = Integer.parseInt(a.get(KEY_SCORE).toString());
                 scoreB = Integer.parseInt(b.get(KEY_SCORE).toString());
 
-
                 return -Integer.compare(scoreA, scoreB);
             }
-        });
 
+        });
         JSONObject keyArr = new JSONObject();
-        keyArr.put(KEY_ARR, jsonValues);
+        if(mode == KEY_ITEM) {
+            keyArr.put(KEY_NORM, (JSONArray) scoreData.get(KEY_NORM));
+        }
+        else {
+            keyArr.put(KEY_ITEM, (JSONArray) scoreData.get(KEY_ITEM));
+        }
+        keyArr.put(mode, jsonValues);
         writeData(keyArr.toString());
     }
 
-    public int getRowsFromTable(String name, int score){
-        int idx = 0;
-        JSONArray scoreData = readData();
-        int scoreDataSize = scoreData.size();
 
-        for(int i = 0; i<scoreDataSize; i++){
-            JSONObject element = (JSONObject)scoreData.get(i);
+    public int getLastScore(String mode) {
+        int score = 0;
+        JSONObject scoreData = readData();
+        JSONArray scoreArr = (JSONArray)scoreData.get(mode);
+
+        if(scoreArr.size() < 10) return 0;
+
+        else {
+            int lastIdx = scoreArr.size() - 1;
+            JSONObject element = (JSONObject) scoreArr.get(lastIdx);
+            score = Integer.parseInt(element.get(KEY_SCORE).toString());
+            return score;
+        }
+    }
+
+    public int getRowsFromTable(String name, int score, String mode){
+        int idx = 0;
+        JSONObject scoreData = readData();
+        JSONArray scoreArr = (JSONArray)scoreData.get(mode);
+        int scoreArrSize = scoreArr.size();
+
+        for(int i = 0; i<scoreArrSize; i++){
+            JSONObject element = (JSONObject)scoreArr.get(i);
             int sc =Integer.parseInt(element.get(KEY_SCORE).toString());
             String str = element.get(KEY_NAME).toString();
-            if(str == name && score == sc){
+
+            if(str.equals(name) && score == sc){
                 idx = i;
                 break;
             }
@@ -130,19 +155,40 @@ public class ScoreDataManager {
         return idx;
     }
 
-    public Object[][] getObjectData(){
-        JSONArray scoreData = readData();
-        Object objectData[][] = new Object[scoreData.size()][3];
-        for(int i = 0; i< scoreData.size(); i++){
-            JSONObject element = (JSONObject) scoreData.get(i);
+    public Object[][] getObjectData(String mode){
+        JSONObject scoreData = readData();
+
+        JSONArray scoreArr = (JSONArray)scoreData.get(mode);
+        Object objectData[][] = new Object[scoreArr.size()][3];
+
+        for(int i = 0; i< scoreArr.size(); i++){
+            JSONObject element = (JSONObject) scoreArr.get(i);
             objectData[i][0] = Integer.toString(i+1);
             objectData[i][1] = element.get(KEY_NAME).toString();
             objectData[i][2] = element.get(KEY_SCORE).toString();
         }
         return objectData;
     }
-    public JTable getTable(){
-        JTable scoreTable = new JTable(getObjectData(), column);
+
+    public JTable getTable(String mode){
+        JTable scoreTable = new JTable(getObjectData(mode), column);
+        scoreTable.setEnabled(false);
         return scoreTable;
+    }
+
+    public void clearNormalData(String mode) {
+        JSONArray clearData = new JSONArray();
+        JSONObject keyArr = new JSONObject();
+        JSONObject scoreData = readData();
+        JSONArray scoreArr = (JSONArray) scoreData.get(mode);
+        if(mode == KEY_NORM){
+            keyArr.put(KEY_ITEM, scoreData.get(KEY_ITEM));
+        }
+        else {
+            keyArr.put(KEY_NORM, scoreData.get(KEY_NORM));
+        }
+
+        keyArr.put(mode, clearData);
+        writeData(keyArr.toString());
     }
 }

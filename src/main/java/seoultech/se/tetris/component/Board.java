@@ -28,16 +28,10 @@ import seoultech.se.tetris.component.model.Data;
 import static java.awt.event.KeyEvent.VK_A;
 
 
-/**
- * 하는 일
- * 보드 그리기
- * 게임 세팅
- * 여러가지 잡다한 게임 기능
- */
 public class Board extends JFrame {
 
 	private static final long serialVersionUID = 2434035659171694595L;
-
+	
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
 	public static final int NEXT_WIDTH = 6;
@@ -212,16 +206,16 @@ public class Board extends JFrame {
 		String display = settingdata.getDisplay();
 		switch (display){
 			case "small":
-				display_width = 400;
-				display_height = 500;
-				break;
-			case "normal":
 				display_width = 500;
 				display_height = 600;
 				break;
+			case "normal":
+				display_width = 1000;
+				display_height = 1200;
+				break;
 			case "big":
-				display_width = 600;
-				display_height = 800;
+				display_width = 1500;
+				display_height = 1800;
 				break;
 		}
 		int code = settingdata.getLeft();
@@ -239,7 +233,7 @@ public class Board extends JFrame {
 	}
 
 
-	public Block getRandomBlock() throws IOException {
+	private Block getRandomBlock() throws IOException {
 		//testRandomBlock();
 		Random rnd = new Random();
 		int block = rnd.nextInt(lev_block);//68 70 72 34 35 36
