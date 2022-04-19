@@ -1,6 +1,5 @@
 package seoultech.se.tetris.component.setting;
 
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import seoultech.se.tetris.component.Setting;
 import seoultech.se.tetris.component.model.Data;
 import seoultech.se.tetris.component.model.KeystrokeUtil;
