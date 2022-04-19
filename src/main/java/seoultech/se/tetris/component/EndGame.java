@@ -4,6 +4,7 @@ import seoultech.se.tetris.component.model.ScoreDataManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -49,6 +50,7 @@ public class EndGame extends JFrame {
         scoreBoardPane = new JPanel(new FlowLayout());
 
         scoreTable = ScoreDataManager.getInstance().getTable(mode);
+
         scrollPane = new JScrollPane(scoreTable);
         scrollPane.setPreferredSize(new Dimension(this.getWidth() - 10, this.getHeight() / 2));
         scoreBoardPane.add(scrollPane);
@@ -102,7 +104,7 @@ public class EndGame extends JFrame {
             }
             else if(restart.equals(e.getSource())){ // restartButton pressed
                 try {
-                    new Board(getLocation().x, getLocation().y);
+                    new Board(getLocation().x, getLocation().y, mode);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -122,33 +124,38 @@ public class EndGame extends JFrame {
                     setScoreBoardPane();
                     int idx = ScoreDataManager.getInstance().getRowsFromTable(writeName.getText(), score, mode);
                     // 이름 같고 스코어 같으면 에러 날수 있음..
-
+                    scoreTable.setDefaultRenderer(Object.class, new MyTableCellRenderer());
                     getThis().add(scoreBoardPane,BorderLayout.CENTER);
                     scoreBoardPane.revalidate();
                     scoreBoardPane.repaint();
                 }
             }
         }
-    };
-    void disPose() {
-        this.dispose();
-    }
-     private JFrame getThis(){
-        return this;
-    }
-    public class MyTableCellRenderer extends DefaultTableCellRenderer {
 
+    };
+
+    public class MyTableCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if (!isSelected) {
-                if(column == ScoreDataManager.getInstance().getRowsFromTable(writeName.getText(), score, mode)) {
-                    Font myFont1 = new Font("Serif", Font.BOLD, 12);
+                int idx = ScoreDataManager.getInstance().getRowsFromTable(writeName.getText(), score, mode);
+                if(row==idx) {
+                    Font myFont1 = new Font("Serif", Font.BOLD, 15);
+//                    cell.setBackground(Color.CYAN);
                     cell.setFont(myFont1);
                 }
             }
             return cell;
         }
     }
+
+    private void disPose() {
+        this.dispose();
+    }
+    private JFrame getThis(){
+        return this;
+    }
+
 }
 

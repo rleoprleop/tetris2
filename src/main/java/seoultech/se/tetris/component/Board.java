@@ -6,9 +6,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.security.KeyException;
-import java.sql.SQLOutput;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.*;
@@ -26,12 +23,11 @@ import seoultech.se.tetris.blocks.ZBlock;
 import seoultech.se.tetris.component.model.Data;
 import seoultech.se.tetris.component.model.ScoreDataManager;
 
-import static java.awt.event.KeyEvent.VK_A;
-
 
 public class Board extends JFrame {
 
 	private static final long serialVersionUID = 2434035659171694595L;
+	private String mode;
 	
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
@@ -86,9 +82,9 @@ public class Board extends JFrame {
 	private int key_down;
 
 
-	public Board(int x, int y) throws IOException {
+	public Board(int x, int y, String mode) throws IOException {
 		super("SeoulTech SE Tetris");
-
+		this.mode = mode;
 		//read setting
 		setting();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -451,7 +447,7 @@ public class Board extends JFrame {
 			y = 0;
 			if(isBlocked('d')){
 				timer.stop();
-				new EndGame(this.getLocation().x, this.getLocation().y, score, ScoreDataManager.getInstance().getArrKey());
+				new EndGame(this.getLocation().x, this.getLocation().y, score, mode);
 				this.dispose();
 			}
 		}

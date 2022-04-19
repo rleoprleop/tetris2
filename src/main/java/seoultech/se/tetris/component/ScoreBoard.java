@@ -38,7 +38,7 @@ public class ScoreBoard  extends JFrame{
 //       JTable scoreTable = new JTable(ScoreDataManager.getInstance().getTable());
        JLabel label = new JLabel("Normal Mode");
        JLabel label2 = new JLabel("Item Mode");
-       JScrollPane scrollPane = new JScrollPane(ScoreDataManager.getInstance().getTable(ScoreDataManager.getInstance().getArrKey()));
+       JScrollPane scrollPane = new JScrollPane(ScoreDataManager.getInstance().getTable(ScoreDataManager.getInstance().getNormKey()));
        JScrollPane itemScrollPane = new JScrollPane(ScoreDataManager.getInstance().getTable(ScoreDataManager.getInstance().getItemKey()));
        scrollPane.setPreferredSize(new Dimension(this.getWidth() - 10, this.getHeight() / 3));
        itemScrollPane.setPreferredSize(new Dimension(this.getWidth() - 10, this.getHeight() / 3));
