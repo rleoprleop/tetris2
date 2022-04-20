@@ -3,6 +3,8 @@ package seoultech.se.tetris.blocks;
 import seoultech.se.tetris.component.model.Data;
 
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.Random;
 import java.io.IOException;
 
 public abstract class Block {
@@ -12,6 +14,8 @@ public abstract class Block {
 	protected int centermoved_x;
 	protected int centermoved_y;
 	protected static boolean color_weak;
+	protected static boolean item_mode;
+
 	private Data settingdata = new Data();
 	
 	public Block() throws IOException {
@@ -90,4 +94,27 @@ public abstract class Block {
 			return shape[0].length;
 		return 0;
 	}
+
+	public void setColorWeak(boolean a){
+		color_weak=a;
+	}
+
+	public boolean getColorWeak(){
+		return color_weak;
+	}
+
+	public void setLineCleaner(){
+		Random rn = new Random();
+		int h=rn.nextInt(height());
+		int w=rn.nextInt(width());
+		while(shape[h][w]==0){
+			h=rn.nextInt(height());
+			w=rn.nextInt(width());
+		}
+		shape[h][w]+=10;
+//		System.out.println(Arrays.deepToString(shape));
+	}
+	public void setItemMode(boolean a){ item_mode=a;}
+
+	public boolean getItemMode(){return item_mode;	}
 }

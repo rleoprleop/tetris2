@@ -40,6 +40,7 @@ public class Board extends JFrame {
 	public static String BORDER_CHAR = "X";
 	public static String BLOCK_CHAR = "O";
 	public static String BLANK_CHAR = " ";
+	public static String LINE_CLEANER = "E";
 	public static final String win_BORDER_CHAR = "X";
 	public static final String win_BLOCK_CHAR = "O";
 	public static final String win_BLANK_CHAR = "     ";
@@ -60,12 +61,14 @@ public class Board extends JFrame {
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
+	private Timer press_timer;
 	private Block curr;
 	private Block next_block;
 	private static boolean ispaused = false;
 	int x = 3; //Default Position.
 	int y = 0;
 	private static int score = 0;
+	private static boolean press_check=false;
 
 	private static final int initInterval = 1000;
 	int sprint=0;
@@ -176,6 +179,19 @@ public class Board extends JFrame {
 			}
 		});
 
+		press_timer = new Timer(200, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					pressDown();
+				} catch (IOException ioException) {
+					ioException.printStackTrace();
+				}
+				drawBoard();
+			}
+		});
+
+
 		//Initialize board for the game.
 		board = new int[HEIGHT][WIDTH];
 		next_board = new int[NEXT_HEIGHT][NEXT_WIDTH];
@@ -266,6 +282,10 @@ public class Board extends JFrame {
 					board[y + j][x + i] = curr.getShape(i, j);
 					color_board[y+j][x+i] = curr.getColor();
 				}
+				else if(curr.getShape(0,0)==6){
+					board[y + j][x + i] = curr.getShape(i, j);
+					color_board[y+j][x+i] = curr.getColor();
+				}
 			}
 		}
 		placeNextBlock();
@@ -295,6 +315,8 @@ public class Board extends JFrame {
 	}
 
 	private boolean isBlocked(char move){ //블럭이 갈 수 있는지 확인하는 함수('d' : 아래, 'r' : 오른쪽, 'l' : 왼쪽)
+		if(press_check)
+			return true;
 		if(move == 'd') { //down
 			if(y + curr.height() < HEIGHT) {
 				for (int i = x; i < x + curr.width(); i++) {
@@ -341,6 +363,8 @@ public class Board extends JFrame {
 			else return true;
 		}
 		else if(move == 't') { //돌릴 수 있는지 확인
+			if(curr.getShape(0,0)==6)
+				return true;
 			curr.rotate();
 			int tmpX = x + curr.getCentermovedX();
 			int tmpY = y + curr.getCentermovedY();
@@ -387,10 +411,13 @@ public class Board extends JFrame {
 		for(int i = lowest; i>=y; i--){
 			boolean canErase = true;
 			for(int j = 0; j < WIDTH; j++){
+				if(board[i][j]>10){
+					canErase=true;
+					break;
+				}
 				if(board[i][j] == 0)
 				{
 					canErase = false;
-					break;
 				}
 			}
 			if(canErase) {
@@ -408,6 +435,35 @@ public class Board extends JFrame {
 //			System.out.println(i);
 		}
 		if(earse)  System.out.println(lowest);
+	}
+
+	protected void pressDown() throws IOException {
+		press_check=true;
+		if(y + curr.height() < HEIGHT) {
+			eraseCurr();
+			y++;
+		}
+		else{
+			press_check=false;
+			press_timer.stop();
+			placeBlock();
+			for(int i = y; i<y+curr.height(); i++) {
+				for (int j = 0; j < WIDTH; j++) {
+					if(board[i][j]==6){
+						board[i][j] = 0;
+					}
+				}
+			}
+			drawBoard();
+			timer.start();
+			curr = next_block;
+			next_block = getRandomBlock();
+			x = 3;
+			y = 0;
+
+		}
+		placeBlock();
+		drawBoard();
 	}
 
 	protected void down(int row) {
@@ -520,12 +576,18 @@ public class Board extends JFrame {
 				//sb.append(BORDER_CHAR);
 				doc.insertString(doc.getLength(), BORDER_CHAR, styleSet);
 				for (int j = 0; j < board[i].length; j++) {
-					if (board[i][j] != 0) {
+					if(board[i][j]>10){
+						StyleConstants.setForeground(styleSet, color_board[i][j]);
+						doc.insertString(doc.getLength(), LINE_CLEANER, styleSet);
+						StyleConstants.setForeground(styleSet, Color.WHITE);
+					}
+					else if (board[i][j] != 0) {
 						StyleConstants.setForeground(styleSet, color_board[i][j]);
 						doc.insertString(doc.getLength(), BLOCK_CHAR, styleSet);
 						//sb.append(BLOCK_CHAR);
 						StyleConstants.setForeground(styleSet, Color.WHITE);
-					} else {
+					}
+					else {
 						doc.insertString(doc.getLength(), BLANK_CHAR, styleSet);
 						//sb.append(BLANK_CHAR);
 					}
@@ -562,9 +624,13 @@ public class Board extends JFrame {
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		for(int i=0; i < NEXT_HEIGHT; i++) {
 			for(int j=0; j < NEXT_WIDTH; j++) {
-				if(next_board[i][j] != 0) {
+				if(next_board[i][j]>10){
+					sb.append(LINE_CLEANER);
+				}
+				else if(next_board[i][j] != 0) {
 					sb.append(BLOCK_CHAR);
-				} else {
+				}
+				else {
 					sb.append(BLANK_CHAR);
 				}
 			}
@@ -629,5 +695,5 @@ public class Board extends JFrame {
 
 		}
 	}
-	
+	public static int getScore(){return score;}
 }
