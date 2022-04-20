@@ -16,8 +16,9 @@ public class SBlock extends Block {
 			color= new Color(0x009f73);
 		else
 			color = Color.GREEN;
-		if(item_mode && Board.getScore()>1){
-			setLineCleaner();
+		if(getItem()){
+			setItemBlock();
+			Board.setCheckLine();
 		}
 	}
 }

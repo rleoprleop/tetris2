@@ -16,8 +16,9 @@ public class LBlock extends Block {
 			color= new Color(0x730a71);
 		else
 			color = Color.ORANGE;
-		if(item_mode && Board.getScore()>1){
-			setLineCleaner();
+		if(getItem()){
+			setItemBlock();
+			Board.setCheckLine();
 		}
 	}
 }

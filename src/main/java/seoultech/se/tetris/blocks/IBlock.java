@@ -15,8 +15,10 @@ public class IBlock extends Block {
 			color= new Color(0x56b5e3);
 		else
 			color = Color.CYAN;
-		if(item_mode && Board.getScore()>1){
-			setLineCleaner();
+
+		if(getItem()){
+			setItemBlock();
+			Board.setCheckLine();
 		}
 	}
 }

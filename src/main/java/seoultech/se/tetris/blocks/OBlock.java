@@ -16,8 +16,9 @@ public class OBlock extends Block {
 			color= new Color(0xf2e245);
 		else
 			color = Color.YELLOW;
-		if(item_mode && Board.getScore()>1){
-			setLineCleaner();
+		if(getItem()){
+			setItemBlock();
+			Board.setCheckLine();
 		}
 	}
 }

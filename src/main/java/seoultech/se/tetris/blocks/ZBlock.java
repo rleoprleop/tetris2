@@ -16,8 +16,9 @@ public class ZBlock extends Block {
 			color= new Color(0xcc79a7);
 		else
 			color = Color.RED;
-		if(item_mode && Board.getScore()>1){
-			setLineCleaner();
+		if(getItem()){
+			setItemBlock();
+			Board.setCheckLine();
 		}
 	}
 }

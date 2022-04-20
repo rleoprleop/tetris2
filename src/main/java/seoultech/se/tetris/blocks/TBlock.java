@@ -16,8 +16,9 @@ public class TBlock extends Block {
 			color= new Color(0xd5933e);
 		else
 			color = Color.MAGENTA;
-		if(item_mode && Board.getScore()>1){
-			setLineCleaner();
+		if(getItem()){
+			setItemBlock();
+			Board.setCheckLine();
 		}
 	}
 }

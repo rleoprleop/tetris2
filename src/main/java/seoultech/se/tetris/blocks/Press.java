@@ -13,5 +13,7 @@ public class Press extends Block {
                 {6, 6, 6, 6}
         };
         color=Color.white;
+
+        Board.setCheckLine();
     }
 }

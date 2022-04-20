@@ -23,6 +23,7 @@ import seoultech.se.tetris.blocks.OBlock;
 import seoultech.se.tetris.blocks.SBlock;
 import seoultech.se.tetris.blocks.TBlock;
 import seoultech.se.tetris.blocks.ZBlock;
+import seoultech.se.tetris.blocks.Press;
 import seoultech.se.tetris.component.model.Data;
 import seoultech.se.tetris.component.model.ScoreDataManager;
 
@@ -40,7 +41,7 @@ public class Board extends JFrame {
 	public static String BORDER_CHAR = "X";
 	public static String BLOCK_CHAR = "O";
 	public static String BLANK_CHAR = " ";
-	public static String LINE_CLEANER = "E";
+	public static String LINE_CLEANER = "L";
 	public static final String win_BORDER_CHAR = "X";
 	public static final String win_BLOCK_CHAR = "O";
 	public static final String win_BLANK_CHAR = "     ";
@@ -48,6 +49,7 @@ public class Board extends JFrame {
 	public static final String mac_BLOCK_CHAR = "O";
 	public static final String mac_BLANK_CHAR = " ";
 	public static String os;
+
 
 	private JTextPane pane;
 	private JTextPane next_pane;
@@ -62,6 +64,7 @@ public class Board extends JFrame {
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
 	private Timer press_timer;
+	private Timer erase_timer;
 	private Block curr;
 	private Block next_block;
 	private static boolean ispaused = false;
@@ -74,6 +77,7 @@ public class Board extends JFrame {
 	int sprint=0;
 	private static final int SPMAX=900;
 
+	private static final int GETITEMLINE=3;
 	private static final int EASY = 72;
 	private static final int NORMAL = 70;
 	private static final int HARD = 68;
@@ -87,6 +91,7 @@ public class Board extends JFrame {
 	private int key_harddrop;
 	private int key_pause;
 	private int key_down;
+	private static int check_line;
 	private String mode;
 
 
@@ -104,6 +109,7 @@ public class Board extends JFrame {
 
 		score = 0;
 		sprint =0;
+		check_line=0;
 
 		// readOS
 		os = System.getProperty("os.name").toLowerCase();
@@ -170,6 +176,7 @@ public class Board extends JFrame {
 				} catch (IOException ioException) {
 					ioException.printStackTrace();
 				}
+				System.out.println(check_line);
 				drawBoard();
 				//System.out.println(timer.getDelay());
 				if(sprint>SPMAX){
@@ -191,6 +198,12 @@ public class Board extends JFrame {
 			}
 		});
 
+		erase_timer = new Timer(100, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
 
 		//Initialize board for the game.
 		board = new int[HEIGHT][WIDTH];
@@ -252,9 +265,17 @@ public class Board extends JFrame {
 	}
 
 
+
 	private Block getRandomBlock() throws IOException {
 		//testRandomBlock();
 		Random rnd = new Random();
+
+		if(Block.getItem()){
+			int i_block=rnd.nextInt(3);
+			if(i_block==2){
+				return new Press();
+			}
+		}
 		int block = rnd.nextInt(lev_block);//68 70 72 34 35 36
 		if(block<10)
 			return new OBlock();
@@ -405,7 +426,7 @@ public class Board extends JFrame {
 	}
 
 	protected void eraseRow() {
-
+		int combo = 0;
 		int lowest = y + curr.height() -1;
 		boolean earse = false;
 		for(int i = lowest; i>=y; i--){
@@ -422,6 +443,8 @@ public class Board extends JFrame {
 			}
 			if(canErase) {
 				score += 1;
+				combo++;
+				check_line++;
 				earse = true;
 				sprint+=20;
 				for(int j = 0; j<WIDTH; j++) {
@@ -429,12 +452,18 @@ public class Board extends JFrame {
 				}
 			}
 		}
+		if(combo > 1){
+			score+=combo;
+		}
 //		System.out.println("------------------------");
 		for(int i = lowest; i>=0; i--){
 			down(i);
 //			System.out.println(i);
 		}
 		if(earse)  System.out.println(lowest);
+		if(check_line>=GETITEMLINE&&Block.getItemMode()){
+			Block.setItem(true);
+		}
 	}
 
 	protected void pressDown() throws IOException {
@@ -496,13 +525,14 @@ public class Board extends JFrame {
 			eraseCurr();
 			y++;
 		}
+		else if(isBlocked('d')&&curr.getShape(0,0)==6){
+			placeBlock();
+			timer.stop();
+			press_timer.start();
+		}
 		else {
-			int combo = score;
 			placeBlock();
 			eraseRow();
-			combo = score - combo;
-			if(combo > 0)
-				score += combo-1;
 			curr = next_block;
 			next_block = getRandomBlock();
 			x = 3;
@@ -696,4 +726,8 @@ public class Board extends JFrame {
 		}
 	}
 	public static int getScore(){return score;}
+	public static void setCheckLine(){
+		check_line-=GETITEMLINE;
+		Block.setItem(false);
+	}
 }
