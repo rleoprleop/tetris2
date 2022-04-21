@@ -1,5 +1,7 @@
 package seoultech.se.tetris.component;
 
+import seoultech.se.tetris.component.model.DataManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -16,10 +18,12 @@ public class Pause extends JFrame {
     private Board board1;
 //    private Robot robot;
 
-    public Pause(int x, int y, int frameW, int frameH, Board board){
+    public Pause(Board board){
         board1 = board;
+        int frameW = DataManager.getInstance().getWeight();
+        int frameH = DataManager.getInstance().getHeight();
         this.setSize(frameW, frameH/2);
-        this.setLocation(x, frameH/2 - frameH/4+y);
+        this.setLocation(board.getX(), frameH/2 - frameH/4+board.getY());
         this.setLayout(new GridLayout(3,1,0,0));
 
         status = 1;
