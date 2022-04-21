@@ -1,7 +1,7 @@
 package seoultech.se.tetris.component.setting;
 
 import seoultech.se.tetris.component.Setting;
-import seoultech.se.tetris.component.model.Data;
+import seoultech.se.tetris.component.model.DataManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,13 +14,11 @@ public class ColorWeakSetting extends JFrame {
     private JPanel backButtonPanel, menuPanel;
     private JButton backButton;
     private JButton on, off;
-    private Data data;
 
-    public ColorWeakSetting(int x, int y, Data settingdata) {
+    public ColorWeakSetting(int x, int y) {
         this.setSize(500, 600);
         this.setLocation(x, y);
         this.setLayout(new BorderLayout(25, 25));
-        this.data = settingdata;
 
         setbackButtonPanel();
         setMenuPanel();
@@ -40,17 +38,26 @@ public class ColorWeakSetting extends JFrame {
 
     private void setMenuPanel(){
         menuPanel = new JPanel(new GridLayout(5,1,5,0));
+        String stat = DataManager.getInstance().getColor_weak();
 
         JPanel onPanel = new JPanel();
         on = new JButton("on");
+        if(on.getText().equals(stat)){
+            on.setSelected(true);
+        }
         on.setPreferredSize(new Dimension(180, 60));
         on.addActionListener(listner);
+        on.setFocusPainted(false);
         onPanel.add(on);
 
         JPanel offPanel = new JPanel();
         off = new JButton("off");
+        if (off.getText().equals(stat)){
+            off.setSelected(true);
+        }
         off.setPreferredSize(new Dimension(180, 60));
         off.addActionListener(listner);
+        off.setFocusPainted(false);
         offPanel.add(off);
 
 
@@ -65,23 +72,12 @@ public class ColorWeakSetting extends JFrame {
                 go_back();
             }
             else if (on.equals(e.getSource())) { // restartButton pressed
-                try {
-                    data.setColor_weak("on");
-                    data.saveSetting();
-                    go_back();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-
+                DataManager.getInstance().setColor_weak("on");
+                go_back();
             }
             else if (off.equals(e.getSource())) { // restartButton pressed
-                try {
-                    data.setColor_weak("off");
-                    data.saveSetting();
-                    go_back();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+                DataManager.getInstance().setColor_weak("off");
+                go_back();
             }
         }
     };

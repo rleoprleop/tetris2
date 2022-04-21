@@ -1,13 +1,9 @@
 package seoultech.se.tetris.component;
 
-import seoultech.se.tetris.component.model.Data;
-import seoultech.se.tetris.component.setting.ColorWeakSetting;
-import seoultech.se.tetris.component.setting.DisplaySetting;
-import seoultech.se.tetris.component.setting.KeySetting;
-import seoultech.se.tetris.component.setting.LevelSetting;
+import seoultech.se.tetris.component.model.DataManager;
+import seoultech.se.tetris.component.setting.*;
 
 import javax.swing.*;
-import javax.swing.text.BoxView;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,7 +15,6 @@ public class Setting extends JFrame {
     private JPanel backButtonPanel, menuPanel;
     private JButton backButton;
     private JButton level, colorWeak, display, keySetting, reset;
-    private Data settingdata;
     private ImageIcon background = new ImageIcon("img/Background.png");
 
     public Setting(int x, int y) {
@@ -28,11 +23,6 @@ public class Setting extends JFrame {
         this.setFocusable(true);
         this.setSize(510, 635);
         this.setLocation(x, y);
-        try {
-            settingdata = new Data();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         setbackButtonPanel();
         setMenuPanel();
@@ -130,34 +120,35 @@ public class Setting extends JFrame {
         public void actionPerformed(ActionEvent e) {
             if (backButton.equals(e.getSource())) { //terminateButton pressed
                 new TetrisMenu(getThis().getLocation().x, getThis().getLocation().y);
-                getThis().dispose();
+                disPose();
             }
             else if (level.equals(e.getSource())) { // restartButton pressed
-                new LevelSetting(getThis().getLocation().x, getThis().getLocation().y, settingdata);
-                getThis().dispose();
+                new LevelSetting(getThis().getLocation().x, getThis().getLocation().y);
+                disPose();
             }
             else if (colorWeak.equals(e.getSource())) { // restartButton pressed
-                new ColorWeakSetting(getThis().getLocation().x, getThis().getLocation().y, settingdata);
-                getThis().dispose();
+                new ColorWeakSetting(getThis().getLocation().x, getThis().getLocation().y);
+                disPose();
             }
             else if (display.equals(e.getSource())) { // restartButton pressed
-                new DisplaySetting(getThis().getLocation().x, getThis().getLocation().y, settingdata);
-                getThis().dispose();
+                new DisplaySetting(getThis().getLocation().x, getThis().getLocation().y);
+                disPose();
             }
             else if (keySetting.equals(e.getSource())) { // restartButton pressed
-                new KeySetting(getThis().getLocation().x, getThis().getLocation().y, settingdata);
-                getThis().dispose();
+                new KeySetting(getThis().getLocation().x, getThis().getLocation().y);
+                disPose();
             }
             else if (reset.equals(e.getSource())) { // restartButton pressed
-                try {
-                    settingdata.resetting();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+                new Resetting(getThis().getLocation().x, getThis().getLocation().y);
+                disPose();
+//                DataManager.getInstance().resetting();
             }
         }
     };
 
+    private void disPose() {
+        this.dispose();
+    }
     private JFrame getThis() {return this;}
 
 

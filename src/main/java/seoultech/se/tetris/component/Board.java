@@ -20,7 +20,7 @@ import seoultech.se.tetris.blocks.OBlock;
 import seoultech.se.tetris.blocks.SBlock;
 import seoultech.se.tetris.blocks.TBlock;
 import seoultech.se.tetris.blocks.ZBlock;
-import seoultech.se.tetris.component.model.Data;
+import seoultech.se.tetris.component.model.DataManager;
 
 
 public class Board extends JFrame {
@@ -79,7 +79,6 @@ public class Board extends JFrame {
 	private static int lev_block = NORMAL; //난이도. easy 72 normal 70 hard 68
 	private int score_diff;
 
-	private Data settingdata = new Data();
 	private int display_width,display_height,key_left,key_right,key_rotate,key_harddrop,key_pause,key_down;
 
 	private String mode;
@@ -96,6 +95,8 @@ public class Board extends JFrame {
 		this.setLocation(x, y);
 		this.setLayout(new GridLayout(1,2,10,0));
 		main_panel = new JPanel();
+
+		sprint =0;
 
 		// readOS
 		os = System.getProperty("os.name").toLowerCase();
@@ -193,7 +194,7 @@ public class Board extends JFrame {
 		final_score = 0;
 		combo = 0;
 		down_num =0;
-		String lv = settingdata.getLevel();
+		String lv = DataManager.getInstance().getLevel();
 		switch(lv){
 			case "normal":
 				lev_block = NORMAL;
@@ -211,7 +212,7 @@ public class Board extends JFrame {
 				score_diff = score_easy;
 				break;
 		}
-		String display = settingdata.getDisplay();
+		String display = DataManager.getInstance().getDisplay();
 		switch (display){
 			case "small":
 				display_width = 500;
@@ -226,17 +227,17 @@ public class Board extends JFrame {
 				display_height = 1000;
 				break;
 		}
-		int code = settingdata.getLeft();
+		int code = DataManager.getInstance().getLeft();
 		key_left = code;
-		code = settingdata.getRight();
+		code = DataManager.getInstance().getRight();
 		key_right = code;
-		code = settingdata.getRotate();
+		code = DataManager.getInstance().getRotate();
 		key_rotate = code;
-		code = settingdata.getHarddrop();
+		code = DataManager.getInstance().getHarddrop();
 		key_harddrop = code;
-		code = settingdata.getPause();
+		code = DataManager.getInstance().getPause();
 		key_pause = code;
-		code = settingdata.getDown();
+		code = DataManager.getInstance().getDown();
 		key_down = code;
 	}
 
