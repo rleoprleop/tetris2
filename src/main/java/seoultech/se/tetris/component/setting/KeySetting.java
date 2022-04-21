@@ -2,10 +2,8 @@ package seoultech.se.tetris.component.setting;
 
 import seoultech.se.tetris.component.Setting;
 import seoultech.se.tetris.component.model.DataManager;
-import seoultech.se.tetris.component.model.KeystrokeUtil;
 
 import javax.swing.*;
-import javax.xml.crypto.Data;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
