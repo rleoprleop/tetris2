@@ -42,6 +42,7 @@ public class Board extends JFrame {
 	public static String BLOCK_CHAR = "O";
 	public static String BLANK_CHAR = " ";
 	public static String LINE_CLEANER = "L";
+	public static String DOUBLE_SCORE = "D";
 	public static final String win_BORDER_CHAR = "X";
 	public static final String win_BLOCK_CHAR = "O";
 	public static final String win_BLANK_CHAR = "     ";
@@ -64,7 +65,6 @@ public class Board extends JFrame {
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
 	private Timer press_timer;
-	private Timer erase_timer;
 	private Block curr;
 	private Block next_block;
 	private static boolean ispaused = false;
@@ -198,12 +198,6 @@ public class Board extends JFrame {
 			}
 		});
 
-		erase_timer = new Timer(100, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-			}
-		});
 
 		//Initialize board for the game.
 		board = new int[HEIGHT][WIDTH];
@@ -426,13 +420,18 @@ public class Board extends JFrame {
 	}
 
 	protected void eraseRow() {
+		boolean x2score=false;
 		int combo = 0;
+		int plusscore=0;
 		int lowest = y + curr.height() -1;
 		boolean earse = false;
 		for(int i = lowest; i>=y; i--){
 			boolean canErase = true;
 			for(int j = 0; j < WIDTH; j++){
-				if(board[i][j]>10){
+				if(board[i][j]>20){
+					x2score=true;
+				}
+				else if(board[i][j]>10){
 					canErase=true;
 					break;
 				}
@@ -442,7 +441,7 @@ public class Board extends JFrame {
 				}
 			}
 			if(canErase) {
-				score += 1;
+				plusscore+=1;//점수 변경
 				combo++;
 				check_line++;
 				earse = true;
@@ -453,8 +452,12 @@ public class Board extends JFrame {
 			}
 		}
 		if(combo > 1){
-			score+=combo;
+			plusscore+=combo;
 		}
+		if(x2score){
+			plusscore*=2;
+		}
+		score+=plusscore;
 //		System.out.println("------------------------");
 		for(int i = lowest; i>=0; i--){
 			down(i);
@@ -465,6 +468,7 @@ public class Board extends JFrame {
 			Block.setItem(true);
 		}
 	}
+
 
 	protected void pressDown() throws IOException {
 		press_check=true;
@@ -606,7 +610,12 @@ public class Board extends JFrame {
 				//sb.append(BORDER_CHAR);
 				doc.insertString(doc.getLength(), BORDER_CHAR, styleSet);
 				for (int j = 0; j < board[i].length; j++) {
-					if(board[i][j]>10){
+					if(board[i][j]>20){
+						StyleConstants.setForeground(styleSet, color_board[i][j]);
+						doc.insertString(doc.getLength(), DOUBLE_SCORE, styleSet);
+						StyleConstants.setForeground(styleSet, Color.WHITE);
+					}
+					else if(board[i][j]>10){
 						StyleConstants.setForeground(styleSet, color_board[i][j]);
 						doc.insertString(doc.getLength(), LINE_CLEANER, styleSet);
 						StyleConstants.setForeground(styleSet, Color.WHITE);
@@ -654,7 +663,10 @@ public class Board extends JFrame {
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		for(int i=0; i < NEXT_HEIGHT; i++) {
 			for(int j=0; j < NEXT_WIDTH; j++) {
-				if(next_board[i][j]>10){
+				if(next_board[i][j]>20){
+					sb.append(DOUBLE_SCORE);
+				}
+				else if(next_board[i][j]>10){
 					sb.append(LINE_CLEANER);
 				}
 				else if(next_board[i][j] != 0) {
