@@ -1,8 +1,11 @@
 package seoultech.se.tetris.blocks;
 
-import seoultech.se.tetris.component.model.DataManager;
+import seoultech.se.tetris.component.Board;
+import seoultech.se.tetris.component.model.Data;
 
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.Random;
 import java.io.IOException;
 
 public abstract class Block {
@@ -12,13 +15,17 @@ public abstract class Block {
 	protected int centermoved_x;
 	protected int centermoved_y;
 	protected static boolean color_weak;
+	protected static boolean item_mode=true;
+	protected static boolean item;
 
+	private Data settingdata = new Data();
+	
 	public Block() throws IOException {
 		shape = new int[][]{ 
 				{1, 1}, 
 				{1, 1}
 		};
-		if(DataManager.getInstance().getColor_weak().equals("off"))
+		if(settingdata.getColor_weak().equals("off"))
 			color_weak = false;
 		else
 			color_weak = true;
@@ -50,7 +57,7 @@ public abstract class Block {
 			for(int j=0; j<rotate[i].length; j++)
 			{
 				rotate[i][j] = shape[height()-1-j][i];
-				if(rotate[i][j] == 2){
+				if(rotate[i][j] == 2 || rotate[i][j] == 12 || rotate[i][j] == 22){
 					centermoved_y = (height() -1 -j -i);
 					centermoved_x = (i - j);
 				}
@@ -72,7 +79,7 @@ public abstract class Block {
 			for(int j=0; j<rotate[i].length; j++)
 			{
 				rotate[i][j] = shape[height()-1-j][i];
-				if(rotate[i][j] == 2){
+				if(rotate[i][j] == 2 || rotate[i][j] == 12 || rotate[i][j] == 22){
 					centermoved_y = (height() -1 -j -i);
 					centermoved_x = (i - j);
 				}
@@ -89,4 +96,32 @@ public abstract class Block {
 			return shape[0].length;
 		return 0;
 	}
+
+	public static void setColorWeak(boolean a){
+		color_weak=a;
+	}
+
+	public static boolean getColorWeak(){
+		return color_weak;
+	}
+
+	public void setItemBlock(){
+		Random rn = new Random();
+		int h=rn.nextInt(height());
+		int w=rn.nextInt(width());
+		while(shape[h][w]==0){
+			h=rn.nextInt(height());
+			w=rn.nextInt(width());
+		}
+		int a=rn.nextInt(2)+1;
+		shape[h][w]+=(10*a);
+//		System.out.println(Arrays.deepToString(shape));
+	}
+	public static void setItemMode(boolean a){item_mode=a;}
+
+	public static boolean getItemMode(){return item_mode;}
+
+	public static void setItem(boolean a){item=a;}
+
+	public static boolean getItem(){return item;}
 }
