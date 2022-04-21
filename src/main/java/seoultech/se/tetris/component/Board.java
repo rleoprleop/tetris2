@@ -116,7 +116,6 @@ public class Board extends JFrame {
 
 		// readOS
 		os = System.getProperty("os.name").toLowerCase();
-		//System.out.println(os);
 		if(os.contains("win")){
 			BORDER_CHAR = win_BORDER_CHAR;
 			BLOCK_CHAR = win_BLOCK_CHAR;
@@ -179,9 +178,7 @@ public class Board extends JFrame {
 				} catch (IOException ioException) {
 					ioException.printStackTrace();
 				}
-//				System.out.println(check_line);
 				drawBoard();
-				//System.out.println(timer.getDelay());
 				if(sprint>SPMAX){
 					sprint=SPMAX;
 				}
@@ -298,7 +295,6 @@ public class Board extends JFrame {
 	}
 
 	private void placeBlock() {
-		//System.out.println("width : " + curr.width() + " height : " + curr.height());
 		for(int j=0; j<curr.height(); j++) {
 			int rows = j;//y+j == 0 ? 0 : y+j-1;
 			int offset = x;//rows * (WIDTH+3) + x + 1;
@@ -318,7 +314,6 @@ public class Board extends JFrame {
 
 	private void placeNextBlock() {
 
-		//System.out.println("width : " + curr.width() + " height : " + curr.height());
 		for(int j=0; j<NEXT_HEIGHT; j++){
 			for(int i=0; i<NEXT_WIDTH; i++){
 				next_board[j][i] = 0;
@@ -348,7 +343,6 @@ public class Board extends JFrame {
 					int lowest = y + curr.height() - 1;
 					while(curr.getShape(i-x, lowest-y) == 0)
 						lowest--;
-					//System.out.println();
 					if (board[lowest+1][i] != 0 && curr.getShape(i - x, lowest-y) != 0) {
 						return true;
 					}
@@ -359,7 +353,6 @@ public class Board extends JFrame {
 		else if(move == 'l') { //왼쪽으로 갈수있는지 확인
 			if(x > 0) {
 				for (int i = y; i < y + curr.height(); i++) {
-					//System.out.print(x + " " + y + " ");
 					int mostLeft = x;
 					while(curr.getShape(mostLeft-x, i-y) == 0)
 							mostLeft++;
@@ -374,7 +367,6 @@ public class Board extends JFrame {
 		else if(move == 'r') { //오른쪽으로 갈 수 있는지 확인
 			if(x + curr.width() < WIDTH) {
 				for (int i = y; i < y + curr.height(); i++) {
-					//System.out.print(x + " " + y + " ");
 					int mostRight = x + curr.width() - 1;
 					while(curr.getShape(mostRight-x, i-y) == 0) mostRight--;
 					if(board[i][mostRight + 1] != 0 && curr.getShape(mostRight-x, i-y) != 0){
@@ -394,7 +386,6 @@ public class Board extends JFrame {
 			int tmpX = x + curr.getCentermovedX();
 			int tmpY = y + curr.getCentermovedY();
 			if(tmpX >= 0 && tmpX + curr.width()-1 < WIDTH && tmpY >= 0 && tmpY + curr.height() < HEIGHT){
-				//System.out.println("IN!!");
 				for(int i=tmpY; i<tmpY+curr.height(); i++) {
 					for (int j = tmpX; j < tmpX + curr.width(); j++) {
 						if (board[i][j] != 0 && curr.getShape(j - tmpX, i - tmpY) != 0) {
@@ -440,7 +431,6 @@ public class Board extends JFrame {
 						board[i][j]-=100;
 					}
 				}
-				System.out.println(Arrays.toString(board[i]));
 			}
 		}
 		else{
@@ -481,7 +471,6 @@ public class Board extends JFrame {
 				sprint+=20;
 				for(int j = 0; j<WIDTH; j++) {
 					board[i][j] = 0;
-					System.out.println(Arrays.toString(board[i]));
 				}
 			}
 		}
@@ -492,12 +481,9 @@ public class Board extends JFrame {
 			plusscore*=2;
 		}
 		score+=plusscore;
-//		System.out.println("------------------------");
 		for(int i = lowest; i>=0; i--){
 			down(i);
-//			System.out.println(i);
 		}
-//		if(earse)  System.out.println(lowest);
 		if(check_line>=GETITEMLINE&&Block.getItemMode()){
 			Block.setItem(true);
 		}
@@ -787,7 +773,6 @@ public class Board extends JFrame {
 				}
 				else if(e.getKeyCode() == key_rotate) {
 					rotateblock();
-					//System.out.println("width : " + curr.width() + " height : " + curr.height());
 					drawBoard();
 				}
 				else if(e.getKeyCode() == key_harddrop) {
