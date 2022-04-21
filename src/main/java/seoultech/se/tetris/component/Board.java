@@ -96,8 +96,6 @@ public class Board extends JFrame {
 		this.setLayout(new GridLayout(1,2,10,0));
 		main_panel = new JPanel();
 
-		sprint =0;
-
 		// readOS
 		os = System.getProperty("os.name").toLowerCase();
 		//System.out.println(os);
