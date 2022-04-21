@@ -174,10 +174,10 @@ public class DataManager {
                 height = 600;
                 break;
             case "normal":
-                height = 1200;
+                height = 800;
                 break;
             case "big":
-                height = 1800;
+                height = 1000;
                 break;
         }
         return height;
@@ -191,10 +191,10 @@ public class DataManager {
                     weight = 500;
                     break;
                 case "normal":
-                    weight = 1000;
+                    weight = 600;
                     break;
                 case "big":
-                    weight = 1500;
+                    weight = 800;
                     break;
             }
             return weight;

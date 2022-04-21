@@ -11,6 +11,7 @@ import java.util.Random;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.text.*;
+import javax.xml.crypto.Data;
 
 import seoultech.se.tetris.blocks.Block;
 import seoultech.se.tetris.blocks.IBlock;
@@ -91,8 +92,9 @@ public class Board extends JFrame {
 		//read setting
 		setting();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(display_width, display_height);
+		this.setSize(DataManager.getInstance().getWeight(), DataManager.getInstance().getHeight());
 		this.setLocation(x, y);
+
 		this.setLayout(new GridLayout(1,2,10,0));
 		main_panel = new JPanel();
 
@@ -193,6 +195,21 @@ public class Board extends JFrame {
 		combo = 0;
 		down_num =0;
 		String lv = DataManager.getInstance().getLevel();
+		settingLevel(lv);
+		int code = DataManager.getInstance().getLeft();
+		key_left = code;
+		code = DataManager.getInstance().getRight();
+		key_right = code;
+		code = DataManager.getInstance().getRotate();
+		key_rotate = code;
+		code = DataManager.getInstance().getHarddrop();
+		key_harddrop = code;
+		code = DataManager.getInstance().getPause();
+		key_pause = code;
+		code = DataManager.getInstance().getDown();
+		key_down = code;
+	}
+	public void settingLevel(String lv){
 		switch(lv){
 			case "normal":
 				lev_block = NORMAL;
@@ -210,37 +227,9 @@ public class Board extends JFrame {
 				score_diff = score_easy;
 				break;
 		}
-		String display = DataManager.getInstance().getDisplay();
-		switch (display){
-			case "small":
-				display_width = 500;
-				display_height = 600;
-				break;
-			case "normal":
-				display_width = 600;
-				display_height = 800;
-				break;
-			case "big":
-				display_width = 800;
-				display_height = 1000;
-				break;
-		}
-		int code = DataManager.getInstance().getLeft();
-		key_left = code;
-		code = DataManager.getInstance().getRight();
-		key_right = code;
-		code = DataManager.getInstance().getRotate();
-		key_rotate = code;
-		code = DataManager.getInstance().getHarddrop();
-		key_harddrop = code;
-		code = DataManager.getInstance().getPause();
-		key_pause = code;
-		code = DataManager.getInstance().getDown();
-		key_down = code;
 	}
 
-
-	private Block getRandomBlock() throws IOException {
+	public Block getRandomBlock() throws IOException {
 		//testRandomBlock();
 		Random rnd = new Random();
 		int block = rnd.nextInt(lev_block);//68 70 72 34 35 36

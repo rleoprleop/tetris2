@@ -94,19 +94,9 @@ public class ScoreDataManager {
             jsonValues.add((JSONObject) scoreArr.get(i));
         }
 
-        Collections.sort(jsonValues, new Comparator<JSONObject>() {
-            @Override
-            public int compare(JSONObject a, JSONObject b) {
-                int scoreA;
-                int scoreB;
+        Collections.sort(jsonValues, (a1, a2) -> Integer.parseInt(a2.get(KEY_SCORE).toString())
+                                - Integer.parseInt(a1.get(KEY_SCORE).toString()));
 
-                scoreA = Integer.parseInt(a.get(KEY_SCORE).toString());
-                scoreB = Integer.parseInt(b.get(KEY_SCORE).toString());
-
-                return -Integer.compare(scoreA, scoreB);
-            }
-
-        });
         JSONObject keyArr = new JSONObject();
         if(mode == KEY_ITEM) {
             keyArr.put(KEY_NORM, (JSONArray) scoreData.get(KEY_NORM));
@@ -152,7 +142,7 @@ public class ScoreDataManager {
             }
         }
         return idx;
-    }
+    }//
 
     public Object[][] getObjectData(String mode){
         JSONObject scoreData = readData();
@@ -180,7 +170,6 @@ public class ScoreDataManager {
         JSONArray clearData = new JSONArray();
         JSONObject keyArr = new JSONObject();
         JSONObject scoreData = readData();
-        JSONArray scoreArr = (JSONArray) scoreData.get(mode);
         if(mode == KEY_NORM){
             keyArr.put(KEY_ITEM, scoreData.get(KEY_ITEM));
         }
