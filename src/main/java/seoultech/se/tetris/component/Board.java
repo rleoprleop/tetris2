@@ -65,6 +65,7 @@ public class Board extends JFrame {
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
 	private Timer press_timer;
+	private Timer erase_timer;
 	private Block curr;
 	private Block next_block;
 	private static boolean ispaused = false;
@@ -72,6 +73,8 @@ public class Board extends JFrame {
 	int y = 0;
 	private static int score = 0;
 	private static boolean press_check=false;
+	private static boolean erase_check=false;
+	private static int erase_line_check=0;
 
 	private static final int initInterval = 1000;
 	int sprint=0;
@@ -176,7 +179,7 @@ public class Board extends JFrame {
 				} catch (IOException ioException) {
 					ioException.printStackTrace();
 				}
-				System.out.println(check_line);
+//				System.out.println(check_line);
 				drawBoard();
 				//System.out.println(timer.getDelay());
 				if(sprint>SPMAX){
@@ -198,6 +201,13 @@ public class Board extends JFrame {
 			}
 		});
 
+		erase_timer = new Timer(100, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				eraseLine();
+				drawBoard();
+			}
+		});
 
 		//Initialize board for the game.
 		board = new int[HEIGHT][WIDTH];
@@ -330,7 +340,7 @@ public class Board extends JFrame {
 	}
 
 	private boolean isBlocked(char move){ //블럭이 갈 수 있는지 확인하는 함수('d' : 아래, 'r' : 오른쪽, 'l' : 왼쪽)
-		if(press_check)
+		if(press_check||erase_check)
 			return true;
 		if(move == 'd') { //down
 			if(y + curr.height() < HEIGHT) {
@@ -419,6 +429,29 @@ public class Board extends JFrame {
 		placeBlock();
 	}
 
+	protected void eraseLine(){
+		erase_check=true;
+		int lowest = y + curr.height() -1;
+		if(erase_line_check<2){
+			erase_line_check++;
+			for(int i=lowest;i>=y;i--){
+				for(int j=0;j<WIDTH;j++){
+					if(board[i][j]>99){
+						board[i][j]-=100;
+					}
+				}
+				System.out.println(Arrays.toString(board[i]));
+			}
+		}
+		else{
+			erase_timer.stop();
+			erase_line_check=0;
+			timer.start();
+		}
+		placeBlock();
+		drawBoard();
+	}
+
 	protected void eraseRow() {
 		boolean x2score=false;
 		int combo = 0;
@@ -448,6 +481,7 @@ public class Board extends JFrame {
 				sprint+=20;
 				for(int j = 0; j<WIDTH; j++) {
 					board[i][j] = 0;
+					System.out.println(Arrays.toString(board[i]));
 				}
 			}
 		}
@@ -463,12 +497,39 @@ public class Board extends JFrame {
 			down(i);
 //			System.out.println(i);
 		}
-		if(earse)  System.out.println(lowest);
+//		if(earse)  System.out.println(lowest);
 		if(check_line>=GETITEMLINE&&Block.getItemMode()){
 			Block.setItem(true);
 		}
 	}
 
+	protected boolean checkEraseRow(){
+		if(erase_check){
+			return false;
+		}
+		int lowest = y + curr.height() -1;
+		boolean erase=false;
+		for(int i = lowest; i>=y; i--){
+			boolean canErase = true;
+			for(int j = 0; j < WIDTH; j++){
+				if(board[i][j]<20&&board[i][j]>10){
+					canErase=true;
+					break;
+				}
+				if(board[i][j] == 0)
+				{
+					canErase = false;
+				}
+			}
+			if(canErase) {
+				for(int j = 0; j<WIDTH; j++) {
+					board[i][j] += 100;
+					erase=true;
+				}
+			}
+		}
+		return erase;
+	}
 
 	protected void pressDown() throws IOException {
 		press_check=true;
@@ -534,7 +595,12 @@ public class Board extends JFrame {
 			timer.stop();
 			press_timer.start();
 		}
+		else if(checkEraseRow()){
+			timer.stop();
+			erase_timer.start();
+		}
 		else {
+			erase_check=false;
 			placeBlock();
 			eraseRow();
 			curr = next_block;
@@ -610,7 +676,12 @@ public class Board extends JFrame {
 				//sb.append(BORDER_CHAR);
 				doc.insertString(doc.getLength(), BORDER_CHAR, styleSet);
 				for (int j = 0; j < board[i].length; j++) {
-					if(board[i][j]>20){
+					if(board[i][j]>99){
+						StyleConstants.setForeground(styleSet, color_board[i][j]);
+						doc.insertString(doc.getLength(), BLANK_CHAR, styleSet);
+						StyleConstants.setForeground(styleSet, Color.WHITE);
+					}
+					else if(board[i][j]>20){
 						StyleConstants.setForeground(styleSet, color_board[i][j]);
 						doc.insertString(doc.getLength(), DOUBLE_SCORE, styleSet);
 						StyleConstants.setForeground(styleSet, Color.WHITE);
@@ -663,7 +734,10 @@ public class Board extends JFrame {
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		for(int i=0; i < NEXT_HEIGHT; i++) {
 			for(int j=0; j < NEXT_WIDTH; j++) {
-				if(next_board[i][j]>20){
+				if(next_board[i][j]>99){
+					sb.append(BLANK_CHAR);
+				}
+				else if(next_board[i][j]>20){
 					sb.append(DOUBLE_SCORE);
 				}
 				else if(next_board[i][j]>10){
