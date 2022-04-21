@@ -36,10 +36,10 @@ public class Board extends JFrame {
 	public static String BLANK_CHAR = " ";
 	public static final String win_BORDER_CHAR = "X";
 	public static final String win_BLOCK_CHAR = "O";
-	public static final String win_BLANK_CHAR = "     ";
+	public static final String win_BLANK_CHAR = "     "; //     
 	public static final String mac_BORDER_CHAR = "X";
 	public static final String mac_BLOCK_CHAR = "O";
-	public static final String mac_BLANK_CHAR = " ";
+	public static final String mac_BLANK_CHAR = " "; // 
 	public static String os;
 
 	private JTextPane pane;
