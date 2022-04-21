@@ -7,7 +7,7 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 
 public class DataManager {
-    private final String FILEPATH = "src/main/java/seoultech/se/tetris/component/model/setting.json";
+    private String FILEPATH = "src/main/java/seoultech/se/tetris/component/model/setting.json";
     private final String KEY_LEVEL = "Level";
     private final String KEY_COLOR = "Color_weak";
     private final String KEY_DISPLAY = "Display";
@@ -18,6 +18,7 @@ public class DataManager {
     private final String KEY_ROTATE = "rotate";
     private final String KEY_HARDDROP = "hardDrop";
     private final String KEY_PAUSE = "pause";
+    private final String KEY_MODE = "mode";
 
     private DataManager() {
     }
@@ -108,6 +109,11 @@ public class DataManager {
         data.put(KEY_DOWN, code);
         writeData(data.toString());
     }
+    public void setMode(String mode){
+        JSONObject data = readData();
+        data.put(KEY_MODE, mode);
+        writeData(data.toString());
+    }
 
     public void setKey(int left, int right, int down, int pause, int rotate, int hardDrop){
         JSONObject data = readData();
@@ -118,6 +124,10 @@ public class DataManager {
         data.put(KEY_ROTATE, rotate);
         data.put(KEY_HARDDROP, hardDrop);
         writeData(data.toString());
+    }
+
+    public void setFILEPATH(String path) {
+        FILEPATH = path;
     }
 
     public String getLevel(){
@@ -166,6 +176,12 @@ public class DataManager {
         return Integer.parseInt(stringData);
     }
 
+    public String getMode(){
+        JSONObject data = readData();
+        String stringData = data.get(KEY_MODE).toString();
+        return stringData;
+    }
+
     public int getHeight(){
         String display = getDisplay();
         int height=0;
@@ -212,6 +228,7 @@ public class DataManager {
         data.put(KEY_HARDDROP,data.get("ori_hardDrop"));
         data.put(KEY_PAUSE,data.get("ori_pause"));
         data.put(KEY_DOWN,data.get("ori_down"));
+        data.put(KEY_MODE, "normal");
 
         writeData(data.toString());
     }

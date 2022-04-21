@@ -263,7 +263,7 @@ public class Board extends JFrame {
 		}
 	}
 
-	private Block getRandomBlock() throws IOException {
+	public Block getRandomBlock() throws IOException {
 		//testRandomBlock();
 		Random rnd = new Random();
 
@@ -781,26 +781,26 @@ public class Board extends JFrame {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			try {
-				if(e.getKeyCode() == key_left) {
+				if(e.getKeyCode() == key_left && ispaused == false) {
 					moveLeft();
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_right) {
+				else if(e.getKeyCode() == key_right && ispaused == false) {
 					moveRight();
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_rotate) {
+				else if(e.getKeyCode() == key_rotate && ispaused == false) {
 					rotateblock();
 					//System.out.println("width : " + curr.width() + " height : " + curr.height());
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_harddrop) {
+				else if(e.getKeyCode() == key_harddrop && ispaused == false) {
 					harddrop();
 				}
 				else if(e.getKeyCode() == key_pause) {
 					pause();
 				}
-				else if(e.getKeyCode() == key_down) {
+				else if(e.getKeyCode() == key_down && ispaused == false) {
 					moveDown();
 					drawBoard();
 				}
@@ -815,7 +815,7 @@ public class Board extends JFrame {
 
 		}
 	}
-	public static int getScore(){return score;}
+	public static int getScore(){return final_score;}
 	public static void setCheckLine(){
 		check_line-=GETITEMLINE;
 		Block.setItem(false);

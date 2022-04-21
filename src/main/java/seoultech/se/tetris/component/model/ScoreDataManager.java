@@ -148,6 +148,7 @@ public class ScoreDataManager {
         JSONObject scoreData = readData();
 
         JSONArray scoreArr = (JSONArray)scoreData.get(mode);
+
         Object objectData[][] = new Object[scoreArr.size()][4];
 
         for(int i = 0; i< scoreArr.size(); i++){

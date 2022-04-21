@@ -1,8 +1,9 @@
 package seoultech.se.tetris.blocks;
 
 import seoultech.se.tetris.component.Board;
-import seoultech.se.tetris.component.model.Data;
+import seoultech.se.tetris.component.model.DataManager;
 
+import javax.xml.crypto.Data;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Random;
@@ -15,23 +16,28 @@ public abstract class Block {
 	protected int centermoved_x;
 	protected int centermoved_y;
 	protected static boolean color_weak;
-	protected static boolean item_mode=true;
+	protected static boolean item_mode;
 	protected static boolean item;
 
-	private Data settingdata = new Data();
 	
 	public Block() throws IOException {
+		item_mode = isItem_mode();
 		shape = new int[][]{ 
 				{1, 1}, 
 				{1, 1}
 		};
-		if(settingdata.getColor_weak().equals("off"))
+		if(DataManager.getInstance().getColor_weak().equals("off"))
 			color_weak = false;
 		else
 			color_weak = true;
 		color = Color.YELLOW;
 		centermoved_x = 0;
 		centermoved_y = 0;
+	}
+	private boolean isItem_mode(){
+		if(DataManager.getInstance().getMode().equals("item"))
+			return true;
+		else return false;
 	}
 
 	public int getCentermovedX() {
@@ -67,23 +73,6 @@ public abstract class Block {
 		for(int i=0; i<rotate.length; i++){
 			for(int j=0; j<rotate[0].length; j++)
 				shape[i][j] = rotate[i][j];
-		}
-		//System.out.println(centermoved_x + " " + centermoved_y);
-		//Rotate the block 90 deg. clockwise.
-	}
-
-	public void canRotate() {
-		int[][] rotate;
-		rotate = new int[width()][height()];
-		for(int i=0; i<rotate.length; i++){
-			for(int j=0; j<rotate[i].length; j++)
-			{
-				rotate[i][j] = shape[height()-1-j][i];
-				if(rotate[i][j] == 2 || rotate[i][j] == 12 || rotate[i][j] == 22){
-					centermoved_y = (height() -1 -j -i);
-					centermoved_x = (i - j);
-				}
-			}
 		}
 	}
 	
