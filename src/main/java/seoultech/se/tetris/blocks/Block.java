@@ -10,7 +10,7 @@ import java.util.Random;
 import java.io.IOException;
 
 public abstract class Block {
-		
+
 	protected int[][] shape;
 	protected Color color;
 	protected int centermoved_x;
