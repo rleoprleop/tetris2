@@ -59,6 +59,12 @@ public class EndGame extends JFrame {
             setTextPane();
         }
     }
+//
+//    public int getRowsFromTable(){
+//
+//
+//        return 1;
+//    }
 
     void setTextPane(){
         textPane = new JPanel(new FlowLayout());

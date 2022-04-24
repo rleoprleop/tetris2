@@ -14,6 +14,7 @@ import java.util.Random;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.text.*;
+import javax.xml.crypto.Data;
 
 import seoultech.se.tetris.blocks.Block;
 import seoultech.se.tetris.blocks.IBlock;
@@ -23,10 +24,8 @@ import seoultech.se.tetris.blocks.OBlock;
 import seoultech.se.tetris.blocks.SBlock;
 import seoultech.se.tetris.blocks.TBlock;
 import seoultech.se.tetris.blocks.ZBlock;
+import seoultech.se.tetris.component.model.DataManager;
 import seoultech.se.tetris.blocks.Press;
-import seoultech.se.tetris.component.model.Data;
-import seoultech.se.tetris.component.model.ScoreDataManager;
-
 import static java.awt.event.KeyEvent.VK_A;
 
 
@@ -45,12 +44,11 @@ public class Board extends JFrame {
 	public static String DOUBLE_SCORE = "D";
 	public static final String win_BORDER_CHAR = "X";
 	public static final String win_BLOCK_CHAR = "O";
-	public static final String win_BLANK_CHAR = "     ";
+	public static final String win_BLANK_CHAR = "     "; //     
 	public static final String mac_BORDER_CHAR = "X";
 	public static final String mac_BLOCK_CHAR = "O";
-	public static final String mac_BLANK_CHAR = " ";
+	public static final String mac_BLANK_CHAR = " "; // 
 	public static String os;
-
 
 	private JTextPane pane;
 	private JTextPane next_pane;
@@ -71,7 +69,12 @@ public class Board extends JFrame {
 	private static boolean ispaused = false;
 	int x = 3; //Default Position.
 	int y = 0;
-	private static int score = 0;
+	//score 관련 변수들
+	private static int line_erase_num = 0;
+	private static int accuml_combo =0;
+	private static int down_num =0;
+	private static int combo;
+	private static int final_score = 0;
 	private static boolean press_check=false;
 	private static boolean erase_check=false;
 	private static int erase_line_check=0;
@@ -84,17 +87,15 @@ public class Board extends JFrame {
 	private static final int EASY = 72;
 	private static final int NORMAL = 70;
 	private static final int HARD = 68;
-	private Data settingdata = new Data();
-	private static int lev_block = NORMAL; //난이도. easy 72 normal 70 hard 68
-	private int display_width;
-	private int display_height;
-	private int key_left;
-	private int key_right;
-	private int key_rotate;
-	private int key_harddrop;
-	private int key_pause;
-	private int key_down;
+	private static final int score_easy = 1;
+	private static final int score_normal = 2;
+	private static final int score_hard = 5;
 	private static int check_line;
+	private static int lev_block = NORMAL; //난이도. easy 72 normal 70 hard 68
+	private int score_diff;
+
+	private int display_width,display_height,key_left,key_right,key_rotate,key_harddrop,key_pause,key_down;
+
 	private String mode;
 
 
@@ -105,17 +106,15 @@ public class Board extends JFrame {
 		//read setting
 		setting();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(display_width, display_height);
+		this.setSize(DataManager.getInstance().getWeight(), DataManager.getInstance().getHeight());
 		this.setLocation(x, y);
 		this.setLayout(new GridLayout(1,2,10,0));
 		main_panel = new JPanel();
-
-		score = 0;
-		sprint =0;
-		check_line=0;
+		check_line = 0;
 
 		// readOS
 		os = System.getProperty("os.name").toLowerCase();
+		//System.out.println(os);
 		if(os.contains("win")){
 			BORDER_CHAR = win_BORDER_CHAR;
 			BLOCK_CHAR = win_BLOCK_CHAR;
@@ -179,6 +178,7 @@ public class Board extends JFrame {
 					ioException.printStackTrace();
 				}
 				drawBoard();
+				//System.out.println(timer.getDelay());
 				if(sprint>SPMAX){
 					sprint=SPMAX;
 				}
@@ -224,50 +224,46 @@ public class Board extends JFrame {
 	}
 
 	private void setting() throws IOException {
-		String lv = settingdata.getLevel();
+		line_erase_num = 0;
+		final_score = 0;
+		combo = 0;
+		down_num =0;
+		String lv = DataManager.getInstance().getLevel();
+		settingLevel(lv);
+		int code = DataManager.getInstance().getLeft();
+		key_left = code;
+		code = DataManager.getInstance().getRight();
+		key_right = code;
+		code = DataManager.getInstance().getRotate();
+		key_rotate = code;
+		code = DataManager.getInstance().getHarddrop();
+		key_harddrop = code;
+		code = DataManager.getInstance().getPause();
+		key_pause = code;
+		code = DataManager.getInstance().getDown();
+		key_down = code;
+	}
+	public void settingLevel(String lv){
 		switch(lv){
 			case "normal":
 				lev_block = NORMAL;
+				sprint = 500;
+				score_diff = score_normal;
 				break;
 			case "hard":
 				lev_block = HARD;
+				sprint = 900;
+				score_diff = score_hard;
 				break;
 			case "easy":
 				lev_block = EASY;
+				sprint = 0;
+				score_diff = score_easy;
 				break;
 		}
-		String display = settingdata.getDisplay();
-		switch (display){
-			case "small":
-				display_width = 500;
-				display_height = 600;
-				break;
-			case "normal":
-				display_width = 1000;
-				display_height = 1200;
-				break;
-			case "big":
-				display_width = 1500;
-				display_height = 1800;
-				break;
-		}
-		int code = settingdata.getLeft();
-		key_left = code;
-		code = settingdata.getRight();
-		key_right = code;
-		code = settingdata.getRotate();
-		key_rotate = code;
-		code = settingdata.getHarddrop();
-		key_harddrop = code;
-		code = settingdata.getPause();
-		key_pause = code;
-		code = settingdata.getDown();
-		key_down = code;
 	}
 
-
-
-	private Block getRandomBlock() throws IOException {
+	public Block getRandomBlock() throws IOException {
 		//testRandomBlock();
 		Random rnd = new Random();
 
@@ -295,6 +291,7 @@ public class Board extends JFrame {
 	}
 
 	private void placeBlock() {
+		//System.out.println("width : " + curr.width() + " height : " + curr.height());
 		for(int j=0; j<curr.height(); j++) {
 			int rows = j;//y+j == 0 ? 0 : y+j-1;
 			int offset = x;//rows * (WIDTH+3) + x + 1;
@@ -314,6 +311,7 @@ public class Board extends JFrame {
 
 	private void placeNextBlock() {
 
+		//System.out.println("width : " + curr.width() + " height : " + curr.height());
 		for(int j=0; j<NEXT_HEIGHT; j++){
 			for(int i=0; i<NEXT_WIDTH; i++){
 				next_board[j][i] = 0;
@@ -343,6 +341,7 @@ public class Board extends JFrame {
 					int lowest = y + curr.height() - 1;
 					while(curr.getShape(i-x, lowest-y) == 0)
 						lowest--;
+					//System.out.println();
 					if (board[lowest+1][i] != 0 && curr.getShape(i - x, lowest-y) != 0) {
 						return true;
 					}
@@ -353,6 +352,7 @@ public class Board extends JFrame {
 		else if(move == 'l') { //왼쪽으로 갈수있는지 확인
 			if(x > 0) {
 				for (int i = y; i < y + curr.height(); i++) {
+					//System.out.print(x + " " + y + " ");
 					int mostLeft = x;
 					while(curr.getShape(mostLeft-x, i-y) == 0)
 							mostLeft++;
@@ -367,6 +367,7 @@ public class Board extends JFrame {
 		else if(move == 'r') { //오른쪽으로 갈 수 있는지 확인
 			if(x + curr.width() < WIDTH) {
 				for (int i = y; i < y + curr.height(); i++) {
+					//System.out.print(x + " " + y + " ");
 					int mostRight = x + curr.width() - 1;
 					while(curr.getShape(mostRight-x, i-y) == 0) mostRight--;
 					if(board[i][mostRight + 1] != 0 && curr.getShape(mostRight-x, i-y) != 0){
@@ -386,6 +387,7 @@ public class Board extends JFrame {
 			int tmpX = x + curr.getCentermovedX();
 			int tmpY = y + curr.getCentermovedY();
 			if(tmpX >= 0 && tmpX + curr.width()-1 < WIDTH && tmpY >= 0 && tmpY + curr.height() < HEIGHT){
+				//System.out.println("IN!!");
 				for(int i=tmpY; i<tmpY+curr.height(); i++) {
 					for (int j = tmpX; j < tmpX + curr.width(); j++) {
 						if (board[i][j] != 0 && curr.getShape(j - tmpX, i - tmpY) != 0) {
@@ -461,9 +463,11 @@ public class Board extends JFrame {
 				if(board[i][j] == 0)
 				{
 					canErase = false;
+					break;
 				}
 			}
 			if(canErase) {
+				line_erase_num += 1;
 				plusscore+=1;//점수 변경
 				combo++;
 				check_line++;
@@ -480,9 +484,10 @@ public class Board extends JFrame {
 		if(x2score){
 			plusscore*=2;
 		}
-		score+=plusscore;
+		final_score+=plusscore;
 		for(int i = lowest; i>=0; i--){
 			down(i);
+//			System.out.println(i);
 		}
 		if(check_line>=GETITEMLINE&&Block.getItemMode()){
 			Block.setItem(true);
@@ -572,6 +577,7 @@ public class Board extends JFrame {
 	}
 
 	protected void moveDown() throws IOException { //구조를 조금 바꿈 갈수잇는지 먼저 확인후에 갈수있으면 지우고 이동
+		down_num += 1;
 		if(!isBlocked('d')) {
 			eraseCurr();
 			y++;
@@ -586,21 +592,33 @@ public class Board extends JFrame {
 			erase_timer.start();
 		}
 		else {
+			combo = line_erase_num;
 			erase_check=false;
 			placeBlock();
 			eraseRow();
+			combo = line_erase_num - combo;
+			if(combo > 0)
+				line_erase_num += combo-1;
 			curr = next_block;
 			next_block = getRandomBlock();
 			x = 3;
 			y = 0;
 			if(isBlocked('d')){
 				timer.stop();
-				new EndGame(this.getLocation().x, this.getLocation().y, score, mode);
+				new EndGame(this.getLocation().x, this.getLocation().y, final_score, mode);
 				this.dispose();
 			}
 		}
 		placeBlock();
 		drawBoard();
+		calScore();
+	}
+
+	private void calScore() {
+		accuml_combo += combo;
+		combo = 0;
+		// 라인을 지울 때마다 10점 획득, 2줄 한번에 지울시 10점,3줄 한번에 20점, 1칸 떨어질 때마다 1점 획득
+		final_score = (line_erase_num * score_diff + accuml_combo) * 10 + down_num;
 	}
 
 	protected void moveRight() { //갈수있는지 함수 추가해줌
@@ -621,7 +639,7 @@ public class Board extends JFrame {
 		if(!ispaused){
 			ispaused = true;
 			timer.stop();
-			new Pause(this.getLocation().x, this.getLocation().y,this.getSize().width, this.getSize().height, this);
+			new Pause(this);
 
 		}
 		else{
@@ -682,8 +700,7 @@ public class Board extends JFrame {
 						doc.insertString(doc.getLength(), BLOCK_CHAR, styleSet);
 						//sb.append(BLOCK_CHAR);
 						StyleConstants.setForeground(styleSet, Color.WHITE);
-					}
-					else {
+					} else {
 						doc.insertString(doc.getLength(), BLANK_CHAR, styleSet);
 						//sb.append(BLANK_CHAR);
 					}
@@ -708,7 +725,7 @@ public class Board extends JFrame {
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		StringBuffer sb = new StringBuffer();
 		sb.append("\nScore : ");
-		sb.append(score);
+		sb.append(final_score);
 		score_pane.setText(sb.toString());
 		score_pane.setStyledDocument(doc);
 	}
@@ -731,8 +748,7 @@ public class Board extends JFrame {
 				}
 				else if(next_board[i][j] != 0) {
 					sb.append(BLOCK_CHAR);
-				}
-				else {
+				} else {
 					sb.append(BLANK_CHAR);
 				}
 			}
@@ -749,7 +765,9 @@ public class Board extends JFrame {
 
 	public void reset() {
 		this.board = new int[20][10];
-		score = 0;
+		line_erase_num = 0;
+		accuml_combo = 0;
+		down_num = 0;
 		sprint = 0;
 		drawBoard();
 	}
@@ -763,25 +781,26 @@ public class Board extends JFrame {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			try {
-				if(e.getKeyCode() == key_left) {
+				if(e.getKeyCode() == key_left && ispaused == false) {
 					moveLeft();
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_right) {
+				else if(e.getKeyCode() == key_right && ispaused == false) {
 					moveRight();
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_rotate) {
+				else if(e.getKeyCode() == key_rotate && ispaused == false) {
 					rotateblock();
+					//System.out.println("width : " + curr.width() + " height : " + curr.height());
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_harddrop) {
+				else if(e.getKeyCode() == key_harddrop && ispaused == false) {
 					harddrop();
 				}
 				else if(e.getKeyCode() == key_pause) {
 					pause();
 				}
-				else if(e.getKeyCode() == key_down) {
+				else if(e.getKeyCode() == key_down && ispaused == false) {
 					moveDown();
 					drawBoard();
 				}
@@ -796,7 +815,7 @@ public class Board extends JFrame {
 
 		}
 	}
-	public static int getScore(){return score;}
+	public static int getScore(){return final_score;}
 	public static void setCheckLine(){
 		check_line-=GETITEMLINE;
 		Block.setItem(false);

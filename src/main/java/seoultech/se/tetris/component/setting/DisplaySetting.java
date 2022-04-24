@@ -1,8 +1,7 @@
 package seoultech.se.tetris.component.setting;
 
 import seoultech.se.tetris.component.Setting;
-import seoultech.se.tetris.component.TetrisMenu;
-import seoultech.se.tetris.component.model.Data;
+import seoultech.se.tetris.component.model.DataManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,13 +14,11 @@ public class DisplaySetting extends JFrame {
     private JPanel backButtonPanel, menuPanel;
     private JButton backButton;
     private JButton big, normal, small;
-    private Data data;
 
-    public DisplaySetting(int x, int y, Data settingdata) {
+    public DisplaySetting(int x, int y) {
         this.setSize(500, 600);
         this.setLocation(x, y);
         this.setLayout(new BorderLayout(25, 25));
-        this.data = settingdata;
 
         setbackButtonPanel();
         setMenuPanel();
@@ -41,23 +38,30 @@ public class DisplaySetting extends JFrame {
 
     private void setMenuPanel(){
         menuPanel = new JPanel(new GridLayout(5,1,5,0));
+        String stat = DataManager.getInstance().getDisplay();
 
         JPanel bigPanel = new JPanel();
         big = new JButton("big");
+        if(big.getText().equals(stat)) big.setSelected(true);
         big.setPreferredSize(new Dimension(180, 60));
         big.addActionListener(listner);
+        big.setFocusPainted(false);
         bigPanel.add(big);
 
         JPanel normalPanel = new JPanel();
         normal = new JButton("normal");
+        if(normal.getText().equals(stat)) normal.setSelected(true);
         normal.setPreferredSize(new Dimension(180, 60));
         normal.addActionListener(listner);
+        normal.setFocusPainted(false);
         normalPanel.add(normal);
 
         JPanel smallPanel  = new JPanel();
         small = new JButton("small");
+        if(small.getText().equals(stat)) small.setSelected(true);
         small.setPreferredSize(new Dimension(180, 60));
         small.addActionListener(listner);
+        small.setFocusPainted(false);
         smallPanel.add(small);
 
         menuPanel.add(bigPanel);
@@ -72,32 +76,16 @@ public class DisplaySetting extends JFrame {
                 go_back();
             }
             else if (big.equals(e.getSource())) { // restartButton pressed
-                try {
-                    data.setDisplay("big");
-                    data.saveSetting();
-                    go_back();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-
+                DataManager.getInstance().setDisplay("big");
+                go_back();
             }
             else if (normal.equals(e.getSource())) { // restartButton pressed
-                try {
-                    data.setDisplay("normal");
-                    data.saveSetting();
-                    go_back();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+                DataManager.getInstance().setDisplay("normal");
+                go_back();
             }
             else { // restartButton pressed
-                try {
-                    data.setDisplay("small");
-                    data.saveSetting();
-                    go_back();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+                DataManager.getInstance().setDisplay("small");
+                go_back();
             }
         }
     };

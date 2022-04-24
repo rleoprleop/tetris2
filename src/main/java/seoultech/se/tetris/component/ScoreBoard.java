@@ -6,12 +6,12 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class ScoreBoard  extends JFrame{
+public class ScoreBoard extends JFrame{
     private JButton backButton;
     private JPanel backButtonPane;
     public static JPanel tablePane;
 
-    public  ScoreBoard(int x, int y){
+    public ScoreBoard(int x, int y){
        this.setLocation(x, y);
        this.setTitle("SeoulTech SE Tetris");
        this.setSize(500, 600);
@@ -34,7 +34,7 @@ public class ScoreBoard  extends JFrame{
        backButtonPane.add(backButton);
    }
 
-   private void setScoreTablePane () {
+   private void setScoreTablePane() {
 //       JTable scoreTable = new JTable(ScoreDataManager.getInstance().getTable());
        JLabel label = new JLabel("Normal Mode");
        JLabel label2 = new JLabel("Item Mode");
