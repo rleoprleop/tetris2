@@ -75,8 +75,6 @@ public class Board extends JFrame {
 	private static int down_num =0;
 	private static int combo;
 	private static int final_score = 0;
-	private static boolean press_check=false;
-	private static boolean erase_check=false;
 	private static int erase_line_check=0;
 
 	private static final int initInterval = 1000;
@@ -333,7 +331,7 @@ public class Board extends JFrame {
 	}
 
 	private boolean isBlocked(char move){ //블럭이 갈 수 있는지 확인하는 함수('d' : 아래, 'r' : 오른쪽, 'l' : 왼쪽)
-		if(press_check||erase_check)
+		if(press_timer.isRunning()||erase_timer.isRunning())
 			return true;
 		if(move == 'd') { //down
 			if(y + curr.height() < HEIGHT) {
@@ -423,7 +421,6 @@ public class Board extends JFrame {
 	}
 
 	protected void eraseLine(){
-		erase_check=true;
 		int lowest = y + curr.height() -1;
 		if(erase_line_check<2){
 			erase_line_check++;
@@ -437,7 +434,6 @@ public class Board extends JFrame {
 		}
 		else{
 			erase_timer.stop();
-			erase_line_check=0;
 			timer.start();
 		}
 		placeBlock();
@@ -463,7 +459,6 @@ public class Board extends JFrame {
 				if(board[i][j] == 0)
 				{
 					canErase = false;
-					break;
 				}
 			}
 			if(canErase) {
@@ -495,7 +490,10 @@ public class Board extends JFrame {
 	}
 
 	protected boolean checkEraseRow(){
-		if(erase_check){
+		if(erase_timer.isRunning()||erase_line_check!=0){
+			if(erase_line_check>=2){
+				erase_line_check=0;
+			}
 			return false;
 		}
 		int lowest = y + curr.height() -1;
@@ -523,13 +521,11 @@ public class Board extends JFrame {
 	}
 
 	protected void pressDown() throws IOException {
-		press_check=true;
 		if(y + curr.height() < HEIGHT) {
 			eraseCurr();
 			y++;
 		}
 		else{
-			press_check=false;
 			press_timer.stop();
 			placeBlock();
 			for(int i = y; i<y+curr.height(); i++) {
@@ -588,12 +584,12 @@ public class Board extends JFrame {
 			press_timer.start();
 		}
 		else if(checkEraseRow()){
+			placeBlock();
 			timer.stop();
 			erase_timer.start();
 		}
 		else {
 			combo = line_erase_num;
-			erase_check=false;
 			placeBlock();
 			eraseRow();
 			combo = line_erase_num - combo;
