@@ -32,7 +32,7 @@ import static java.awt.event.KeyEvent.VK_A;
 public class Board extends JFrame {
 
 	private static final long serialVersionUID = 2434035659171694595L;
-	
+
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
 	public static final int NEXT_WIDTH = 6;
@@ -298,7 +298,7 @@ public class Board extends JFrame {
 					board[y + j][x + i] = curr.getShape(i, j);
 					color_board[y+j][x+i] = curr.getColor();
 				}
-				else if(curr.getShape(0,0)==6){
+				else if(curr.getClass().getName().contains("Press")){
 					board[y + j][x + i] = curr.getShape(i, j);
 					color_board[y+j][x+i] = curr.getColor();
 				}
@@ -379,7 +379,7 @@ public class Board extends JFrame {
 			else return true;
 		}
 		else if(move == 't') { //돌릴 수 있는지 확인
-			if(curr.getShape(0,0)==6)
+			if(curr.getClass().getName().contains("Press"))
 				return true;
 			curr.rotate();
 			int tmpX = x + curr.getCentermovedX();
@@ -578,7 +578,7 @@ public class Board extends JFrame {
 			eraseCurr();
 			y++;
 		}
-		else if(isBlocked('d')&&curr.getShape(0,0)==6){
+		else if(isBlocked('d')&&curr.getClass().getName().contains("Press")){
 			placeBlock();
 			timer.stop();
 			press_timer.start();
