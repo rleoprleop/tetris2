@@ -1,5 +1,6 @@
 package seoultech.se.tetris.component;
 
+import seoultech.se.tetris.component.model.DataManager;
 import seoultech.se.tetris.component.model.ScoreDataManager;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ import java.io.IOException;
 import static javax.swing.JOptionPane.showMessageDialog;
 
 public class TetrisMenu extends JFrame {
-    private ImageIcon menuList[] = new ImageIcon[4];
+    private ImageIcon menuList[] = new ImageIcon[5];
     private Container c;
     private int menuNum = 0;
     //private JPanel mainPanel;
@@ -84,11 +85,13 @@ public class TetrisMenu extends JFrame {
         ImageIcon settingImg = new ImageIcon("img/tetrisMenu/Setting_ac.png");
         ImageIcon leaderImg = new ImageIcon("img/tetrisMenu/Leader_ac.png");
         ImageIcon endgameImg = new ImageIcon("img/tetrisMenu/End_ac.png");
+        ImageIcon itemmodeImg = new ImageIcon("img/tetrisMenu/Item_Mode_ac.png");
 
         menuList[0] = menuImg;
         menuList[1] = leaderImg;
         menuList[2] = settingImg;
         menuList[3] = endgameImg;
+        menuList[4] = itemmodeImg;
 
         upLabel = new JLabel(upImg);
         downLabel = new JLabel(downImg);
@@ -110,10 +113,14 @@ public class TetrisMenu extends JFrame {
     }
 
     void enterPressed() throws IOException {
+        String mode;
         switch (menuNum){
 
             case 0: //board class
-                new Board(this.getLocation().x, this.getLocation().y, ScoreDataManager.getInstance().getNormKey());
+                mode = "normal";
+                DataManager.getInstance().setMode(mode);
+                mode = ScoreDataManager.getInstance().getNormKey();
+                new Board(this.getLocation().x, this.getLocation().y, mode);
                 this.dispose();
                 break;
             case 1: //score board class
@@ -127,6 +134,13 @@ public class TetrisMenu extends JFrame {
                 break;
             case 3://exit game
                 System.exit(0);
+                break;
+            case 4:
+                mode = "item";
+                DataManager.getInstance().setMode(mode);
+                mode = ScoreDataManager.getInstance().getItemKey();
+                new Board(this.getLocation().x, this.getLocation().y, mode);
+                this.dispose();
                 break;
             default:
         }

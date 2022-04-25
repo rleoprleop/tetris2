@@ -1,5 +1,7 @@
 package seoultech.se.tetris.blocks;
 
+import seoultech.se.tetris.component.Board;
+
 import java.awt.Color;
 import java.io.IOException;
 
@@ -13,5 +15,10 @@ public class IBlock extends Block {
 			color= new Color(0x56b5e3);
 		else
 			color = Color.CYAN;
+
+		if(getItem()){
+			setItemBlock();
+			Board.setCheckLine();
+		}
 	}
 }

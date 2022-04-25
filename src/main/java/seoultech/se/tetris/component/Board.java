@@ -6,11 +6,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.security.KeyException;
+import java.sql.SQLOutput;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.text.*;
+import javax.xml.crypto.Data;
 
 import seoultech.se.tetris.blocks.Block;
 import seoultech.se.tetris.blocks.IBlock;
@@ -21,12 +25,14 @@ import seoultech.se.tetris.blocks.SBlock;
 import seoultech.se.tetris.blocks.TBlock;
 import seoultech.se.tetris.blocks.ZBlock;
 import seoultech.se.tetris.component.model.DataManager;
+import seoultech.se.tetris.blocks.Press;
+import static java.awt.event.KeyEvent.VK_A;
 
 
 public class Board extends JFrame {
 
 	private static final long serialVersionUID = 2434035659171694595L;
-	
+
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
 	public static final int NEXT_WIDTH = 6;
@@ -34,12 +40,14 @@ public class Board extends JFrame {
 	public static String BORDER_CHAR = "X";
 	public static String BLOCK_CHAR = "O";
 	public static String BLANK_CHAR = " ";
+	public static String LINE_CLEANER = "L";
+	public static String DOUBLE_SCORE = "D";
 	public static final String win_BORDER_CHAR = "X";
 	public static final String win_BLOCK_CHAR = "O";
-	public static final String win_BLANK_CHAR = "     ";
+	public static final String win_BLANK_CHAR = "     "; //     
 	public static final String mac_BORDER_CHAR = "X";
 	public static final String mac_BLOCK_CHAR = "O";
-	public static final String mac_BLANK_CHAR = " ";
+	public static final String mac_BLANK_CHAR = " "; // 
 	public static String os;
 
 	private JTextPane pane;
@@ -54,6 +62,8 @@ public class Board extends JFrame {
 	private KeyListener playerKeyListener;
 	private SimpleAttributeSet styleSet;
 	private Timer timer;
+	private Timer press_timer;
+	private Timer erase_timer;
 	private Block curr;
 	private Block next_block;
 	private static boolean ispaused = false;
@@ -65,17 +75,20 @@ public class Board extends JFrame {
 	private static int down_num =0;
 	private static int combo;
 	private static int final_score = 0;
+	private static int erase_line_check=0;
 
 	private static final int initInterval = 1000;
 	int sprint=0;
 	private static final int SPMAX=900;
 
+	private static final int GETITEMLINE=3;
 	private static final int EASY = 72;
 	private static final int NORMAL = 70;
 	private static final int HARD = 68;
 	private static final int score_easy = 1;
 	private static final int score_normal = 2;
 	private static final int score_hard = 5;
+	private static int check_line;
 	private static int lev_block = NORMAL; //난이도. easy 72 normal 70 hard 68
 	private int score_diff;
 
@@ -91,10 +104,11 @@ public class Board extends JFrame {
 		//read setting
 		setting();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(display_width, display_height);
+		this.setSize(DataManager.getInstance().getWeight(), DataManager.getInstance().getHeight());
 		this.setLocation(x, y);
 		this.setLayout(new GridLayout(1,2,10,0));
 		main_panel = new JPanel();
+		check_line = 0;
 
 		// readOS
 		os = System.getProperty("os.name").toLowerCase();
@@ -170,6 +184,26 @@ public class Board extends JFrame {
 			}
 		});
 
+		press_timer = new Timer(200, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					pressDown();
+				} catch (IOException ioException) {
+					ioException.printStackTrace();
+				}
+				drawBoard();
+			}
+		});
+
+		erase_timer = new Timer(100, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				eraseLine();
+				drawBoard();
+			}
+		});
+
 		//Initialize board for the game.
 		board = new int[HEIGHT][WIDTH];
 		next_board = new int[NEXT_HEIGHT][NEXT_WIDTH];
@@ -193,6 +227,21 @@ public class Board extends JFrame {
 		combo = 0;
 		down_num =0;
 		String lv = DataManager.getInstance().getLevel();
+		settingLevel(lv);
+		int code = DataManager.getInstance().getLeft();
+		key_left = code;
+		code = DataManager.getInstance().getRight();
+		key_right = code;
+		code = DataManager.getInstance().getRotate();
+		key_rotate = code;
+		code = DataManager.getInstance().getHarddrop();
+		key_harddrop = code;
+		code = DataManager.getInstance().getPause();
+		key_pause = code;
+		code = DataManager.getInstance().getDown();
+		key_down = code;
+	}
+	public void settingLevel(String lv){
 		switch(lv){
 			case "normal":
 				lev_block = NORMAL;
@@ -210,39 +259,18 @@ public class Board extends JFrame {
 				score_diff = score_easy;
 				break;
 		}
-		String display = DataManager.getInstance().getDisplay();
-		switch (display){
-			case "small":
-				display_width = 500;
-				display_height = 600;
-				break;
-			case "normal":
-				display_width = 600;
-				display_height = 800;
-				break;
-			case "big":
-				display_width = 800;
-				display_height = 1000;
-				break;
-		}
-		int code = DataManager.getInstance().getLeft();
-		key_left = code;
-		code = DataManager.getInstance().getRight();
-		key_right = code;
-		code = DataManager.getInstance().getRotate();
-		key_rotate = code;
-		code = DataManager.getInstance().getHarddrop();
-		key_harddrop = code;
-		code = DataManager.getInstance().getPause();
-		key_pause = code;
-		code = DataManager.getInstance().getDown();
-		key_down = code;
 	}
 
-
-	private Block getRandomBlock() throws IOException {
+	public Block getRandomBlock() throws IOException {
 		//testRandomBlock();
 		Random rnd = new Random();
+
+		if(Block.getItem()){
+			int i_block=rnd.nextInt(3);
+			if(i_block==2){
+				return new Press();
+			}
+		}
 		int block = rnd.nextInt(lev_block);//68 70 72 34 35 36
 		if(block<10)
 			return new OBlock();
@@ -267,6 +295,10 @@ public class Board extends JFrame {
 			int offset = x;//rows * (WIDTH+3) + x + 1;
 			for(int i=0; i<curr.width(); i++) {
 				if(board[y+j][x+i] == 0) {//요게 히트!!! 보드에 0이 아니면 그대로 유지해야함
+					board[y + j][x + i] = curr.getShape(i, j);
+					color_board[y+j][x+i] = curr.getColor();
+				}
+				else if(curr.getClass().getName().contains("Press")){
 					board[y + j][x + i] = curr.getShape(i, j);
 					color_board[y+j][x+i] = curr.getColor();
 				}
@@ -299,6 +331,8 @@ public class Board extends JFrame {
 	}
 
 	private boolean isBlocked(char move){ //블럭이 갈 수 있는지 확인하는 함수('d' : 아래, 'r' : 오른쪽, 'l' : 왼쪽)
+		if(press_timer.isRunning()||erase_timer.isRunning())
+			return true;
 		if(move == 'd') { //down
 			if(y + curr.height() < HEIGHT) {
 				for (int i = x; i < x + curr.width(); i++) {
@@ -345,6 +379,8 @@ public class Board extends JFrame {
 			else return true;
 		}
 		else if(move == 't') { //돌릴 수 있는지 확인
+			if(curr.getClass().getName().contains("Press"))
+				return true;
 			curr.rotate();
 			int tmpX = x + curr.getCentermovedX();
 			int tmpY = y + curr.getCentermovedY();
@@ -384,21 +420,52 @@ public class Board extends JFrame {
 		placeBlock();
 	}
 
-	protected void eraseRow() {
+	protected void eraseLine(){
+		int lowest = y + curr.height() -1;
+		if(erase_line_check<2){
+			erase_line_check++;
+			for(int i=lowest;i>=y;i--){
+				for(int j=0;j<WIDTH;j++){
+					if(board[i][j]>99){
+						board[i][j]-=100;
+					}
+				}
+			}
+		}
+		else{
+			erase_timer.stop();
+			timer.start();
+		}
+		placeBlock();
+		drawBoard();
+	}
 
+	protected void eraseRow() {
+		boolean x2score=false;
+		int combo = 0;
+		int plusscore=0;
 		int lowest = y + curr.height() -1;
 		boolean earse = false;
 		for(int i = lowest; i>=y; i--){
 			boolean canErase = true;
 			for(int j = 0; j < WIDTH; j++){
+				if(board[i][j]>20){
+					x2score=true;
+				}
+				else if(board[i][j]>10){
+					canErase=true;
+					break;
+				}
 				if(board[i][j] == 0)
 				{
 					canErase = false;
-					break;
 				}
 			}
 			if(canErase) {
 				line_erase_num += 1;
+				plusscore+=1;//점수 변경
+				combo++;
+				check_line++;
 				earse = true;
 				sprint+=20;
 				for(int j = 0; j<WIDTH; j++) {
@@ -406,12 +473,78 @@ public class Board extends JFrame {
 				}
 			}
 		}
-//		System.out.println("------------------------");
+		if(combo > 1){
+			plusscore+=combo;
+		}
+		if(x2score){
+			plusscore*=2;
+		}
+		final_score+=plusscore;
 		for(int i = lowest; i>=0; i--){
 			down(i);
 //			System.out.println(i);
 		}
-		//if(earse)  System.out.println(lowest);
+		if(check_line>=GETITEMLINE&&Block.getItemMode()){
+			Block.setItem(true);
+		}
+	}
+
+	protected boolean checkEraseRow(){
+		if(erase_timer.isRunning()||erase_line_check!=0){
+			if(erase_line_check>=2){
+				erase_line_check=0;
+			}
+			return false;
+		}
+		int lowest = y + curr.height() -1;
+		boolean erase=false;
+		for(int i = lowest; i>=y; i--){
+			boolean canErase = true;
+			for(int j = 0; j < WIDTH; j++){
+				if(board[i][j]<20&&board[i][j]>10){
+					canErase=true;
+					break;
+				}
+				if(board[i][j] == 0)
+				{
+					canErase = false;
+				}
+			}
+			if(canErase) {
+				for(int j = 0; j<WIDTH; j++) {
+					board[i][j] += 100;
+					erase=true;
+				}
+			}
+		}
+		return erase;
+	}
+
+	protected void pressDown() throws IOException {
+		if(y + curr.height() < HEIGHT) {
+			eraseCurr();
+			y++;
+		}
+		else{
+			press_timer.stop();
+			placeBlock();
+			for(int i = y; i<y+curr.height(); i++) {
+				for (int j = 0; j < WIDTH; j++) {
+					if(board[i][j]==6){
+						board[i][j] = 0;
+					}
+				}
+			}
+			drawBoard();
+			timer.start();
+			curr = next_block;
+			next_block = getRandomBlock();
+			x = 3;
+			y = 0;
+
+		}
+		placeBlock();
+		drawBoard();
 	}
 
 	protected void down(int row) {
@@ -444,6 +577,16 @@ public class Board extends JFrame {
 		if(!isBlocked('d')) {
 			eraseCurr();
 			y++;
+		}
+		else if(isBlocked('d')&&curr.getClass().getName().contains("Press")){
+			placeBlock();
+			timer.stop();
+			press_timer.start();
+		}
+		else if(checkEraseRow()){
+			placeBlock();
+			timer.stop();
+			erase_timer.start();
 		}
 		else {
 			combo = line_erase_num;
@@ -492,7 +635,7 @@ public class Board extends JFrame {
 		if(!ispaused){
 			ispaused = true;
 			timer.stop();
-			new Pause(this.getLocation().x, this.getLocation().y,this.getSize().width, this.getSize().height, this);
+			new Pause(this);
 
 		}
 		else{
@@ -533,7 +676,22 @@ public class Board extends JFrame {
 				//sb.append(BORDER_CHAR);
 				doc.insertString(doc.getLength(), BORDER_CHAR, styleSet);
 				for (int j = 0; j < board[i].length; j++) {
-					if (board[i][j] != 0) {
+					if(board[i][j]>99){
+						StyleConstants.setForeground(styleSet, color_board[i][j]);
+						doc.insertString(doc.getLength(), BLANK_CHAR, styleSet);
+						StyleConstants.setForeground(styleSet, Color.WHITE);
+					}
+					else if(board[i][j]>20){
+						StyleConstants.setForeground(styleSet, color_board[i][j]);
+						doc.insertString(doc.getLength(), DOUBLE_SCORE, styleSet);
+						StyleConstants.setForeground(styleSet, Color.WHITE);
+					}
+					else if(board[i][j]>10){
+						StyleConstants.setForeground(styleSet, color_board[i][j]);
+						doc.insertString(doc.getLength(), LINE_CLEANER, styleSet);
+						StyleConstants.setForeground(styleSet, Color.WHITE);
+					}
+					else if (board[i][j] != 0) {
 						StyleConstants.setForeground(styleSet, color_board[i][j]);
 						doc.insertString(doc.getLength(), BLOCK_CHAR, styleSet);
 						//sb.append(BLOCK_CHAR);
@@ -575,7 +733,16 @@ public class Board extends JFrame {
 		doc.setParagraphAttributes(0, doc.getLength(), styleSet, false);
 		for(int i=0; i < NEXT_HEIGHT; i++) {
 			for(int j=0; j < NEXT_WIDTH; j++) {
-				if(next_board[i][j] != 0) {
+				if(next_board[i][j]>99){
+					sb.append(BLANK_CHAR);
+				}
+				else if(next_board[i][j]>20){
+					sb.append(DOUBLE_SCORE);
+				}
+				else if(next_board[i][j]>10){
+					sb.append(LINE_CLEANER);
+				}
+				else if(next_board[i][j] != 0) {
 					sb.append(BLOCK_CHAR);
 				} else {
 					sb.append(BLANK_CHAR);
@@ -595,6 +762,8 @@ public class Board extends JFrame {
 	public void reset() {
 		this.board = new int[20][10];
 		line_erase_num = 0;
+		accuml_combo = 0;
+		down_num = 0;
 		sprint = 0;
 		drawBoard();
 	}
@@ -608,26 +777,26 @@ public class Board extends JFrame {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			try {
-				if(e.getKeyCode() == key_left) {
+				if(e.getKeyCode() == key_left && ispaused == false) {
 					moveLeft();
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_right) {
+				else if(e.getKeyCode() == key_right && ispaused == false) {
 					moveRight();
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_rotate) {
+				else if(e.getKeyCode() == key_rotate && ispaused == false) {
 					rotateblock();
 					//System.out.println("width : " + curr.width() + " height : " + curr.height());
 					drawBoard();
 				}
-				else if(e.getKeyCode() == key_harddrop) {
+				else if(e.getKeyCode() == key_harddrop && ispaused == false) {
 					harddrop();
 				}
 				else if(e.getKeyCode() == key_pause) {
 					pause();
 				}
-				else if(e.getKeyCode() == key_down) {
+				else if(e.getKeyCode() == key_down && ispaused == false) {
 					moveDown();
 					drawBoard();
 				}
@@ -642,5 +811,9 @@ public class Board extends JFrame {
 
 		}
 	}
-	
+	public static int getScore(){return final_score;}
+	public static void setCheckLine(){
+		check_line-=GETITEMLINE;
+		Block.setItem(false);
+	}
 }
