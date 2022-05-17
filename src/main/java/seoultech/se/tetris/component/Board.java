@@ -29,7 +29,7 @@ import seoultech.se.tetris.blocks.Press;
 import static java.awt.event.KeyEvent.VK_A;
 
 
-public class Board extends JFrame {
+public class Board extends JPanel{
 
 	private static final long serialVersionUID = 2434035659171694595L;
 
@@ -50,6 +50,7 @@ public class Board extends JFrame {
 	public static final String mac_BLANK_CHAR = " "; // 
 	public static String os;
 
+	private GameBoard gboard;
 	private JTextPane pane;
 	private JTextPane next_pane;
 	private JTextPane score_pane;
@@ -97,14 +98,12 @@ public class Board extends JFrame {
 	private String mode;
 
 
-	public Board(int x, int y, String mode) throws IOException {
-		super("SeoulTech SE Tetris");
+	public Board(int x, int y, String mode,GameBoard gboard) throws IOException {
 
+		this.gboard=gboard;
 		this.mode = mode;
 		//read setting
 		setting();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(DataManager.getInstance().getWeight(), DataManager.getInstance().getHeight());
 		this.setLocation(x, y);
 		this.setLayout(new GridLayout(1,2,10,0));
 		main_panel = new JPanel();
@@ -165,7 +164,6 @@ public class Board extends JFrame {
 		StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
 
-		this.setVisible(true);
 		//Set timer for block drops.
 		timer = new Timer(initInterval, new ActionListener() {
 			@Override
@@ -602,7 +600,7 @@ public class Board extends JFrame {
 			if(isBlocked('d')){
 				timer.stop();
 				new EndGame(this.getLocation().x, this.getLocation().y, final_score, mode);
-				this.dispose();
+
 			}
 		}
 		placeBlock();
@@ -635,7 +633,7 @@ public class Board extends JFrame {
 		if(!ispaused){
 			ispaused = true;
 			timer.stop();
-			new Pause(this);
+			new Pause(this,gboard);
 
 		}
 		else{

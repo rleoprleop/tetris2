@@ -110,7 +110,7 @@ public class EndGame extends JFrame {
             }
             else if(restart.equals(e.getSource())){ // restartButton pressed
                 try {
-                    new Board(getLocation().x, getLocation().y, mode);
+                    new GameBoard(getLocation().x, getLocation().y, mode);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }

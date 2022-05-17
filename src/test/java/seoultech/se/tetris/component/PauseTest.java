@@ -8,12 +8,12 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PauseTest {
+    private Board board1;
+    private GameBoard gboard1;
     Pause pause;
     @Test
     void pauseTest() throws IOException {
         //given
-        Board board = new Board(100, 100, "normalScore");
-        pause = new Pause(board);
 
         //when
 
