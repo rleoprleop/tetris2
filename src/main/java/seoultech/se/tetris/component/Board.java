@@ -32,7 +32,7 @@ import static java.awt.event.KeyEvent.VK_A;
 public class Board extends JPanel{
 
 	private static final long serialVersionUID = 2434035659171694595L;
-
+	
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
 	public static final int NEXT_WIDTH = 6;
