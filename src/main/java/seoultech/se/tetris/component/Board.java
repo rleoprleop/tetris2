@@ -29,10 +29,10 @@ import seoultech.se.tetris.blocks.Press;
 import static java.awt.event.KeyEvent.VK_A;
 
 
-public class Board extends JFrame {
+public class Board extends JPanel{
 
 	private static final long serialVersionUID = 2434035659171694595L;
-	
+
 	public static final int HEIGHT = 20;
 	public static final int WIDTH = 10;
 	public static final int NEXT_WIDTH = 6;
@@ -50,6 +50,7 @@ public class Board extends JFrame {
 	public static final String mac_BLANK_CHAR = " "; // 
 	public static String os;
 
+	private GameBoard gboard;
 	private JTextPane pane;
 	private JTextPane next_pane;
 	private JTextPane score_pane;
@@ -75,8 +76,6 @@ public class Board extends JFrame {
 	private static int down_num =0;
 	private static int combo;
 	private static int final_score = 0;
-	private static boolean press_check=false;
-	private static boolean erase_check=false;
 	private static int erase_line_check=0;
 
 	private static final int initInterval = 1000;
@@ -99,14 +98,12 @@ public class Board extends JFrame {
 	private String mode;
 
 
-	public Board(int x, int y, String mode) throws IOException {
-		super("SeoulTech SE Tetris");
+	public Board(int x, int y, String mode,GameBoard gboard) throws IOException {
 
+		this.gboard=gboard;
 		this.mode = mode;
 		//read setting
 		setting();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(DataManager.getInstance().getWeight(), DataManager.getInstance().getHeight());
 		this.setLocation(x, y);
 		this.setLayout(new GridLayout(1,2,10,0));
 		main_panel = new JPanel();
@@ -167,7 +164,6 @@ public class Board extends JFrame {
 		StyleConstants.setForeground(styleSet, Color.WHITE);
 		StyleConstants.setAlignment(styleSet, StyleConstants.ALIGN_CENTER);
 
-		this.setVisible(true);
 		//Set timer for block drops.
 		timer = new Timer(initInterval, new ActionListener() {
 			@Override
@@ -300,7 +296,7 @@ public class Board extends JFrame {
 					board[y + j][x + i] = curr.getShape(i, j);
 					color_board[y+j][x+i] = curr.getColor();
 				}
-				else if(curr.getShape(0,0)==6){
+				else if(curr.getClass().getName().contains("Press")){
 					board[y + j][x + i] = curr.getShape(i, j);
 					color_board[y+j][x+i] = curr.getColor();
 				}
@@ -333,7 +329,7 @@ public class Board extends JFrame {
 	}
 
 	private boolean isBlocked(char move){ //블럭이 갈 수 있는지 확인하는 함수('d' : 아래, 'r' : 오른쪽, 'l' : 왼쪽)
-		if(press_check||erase_check)
+		if(press_timer.isRunning()||erase_timer.isRunning())
 			return true;
 		if(move == 'd') { //down
 			if(y + curr.height() < HEIGHT) {
@@ -381,7 +377,7 @@ public class Board extends JFrame {
 			else return true;
 		}
 		else if(move == 't') { //돌릴 수 있는지 확인
-			if(curr.getShape(0,0)==6)
+			if(curr.getClass().getName().contains("Press"))
 				return true;
 			curr.rotate();
 			int tmpX = x + curr.getCentermovedX();
@@ -423,7 +419,6 @@ public class Board extends JFrame {
 	}
 
 	protected void eraseLine(){
-		erase_check=true;
 		int lowest = y + curr.height() -1;
 		if(erase_line_check<2){
 			erase_line_check++;
@@ -437,7 +432,6 @@ public class Board extends JFrame {
 		}
 		else{
 			erase_timer.stop();
-			erase_line_check=0;
 			timer.start();
 		}
 		placeBlock();
@@ -463,7 +457,6 @@ public class Board extends JFrame {
 				if(board[i][j] == 0)
 				{
 					canErase = false;
-					break;
 				}
 			}
 			if(canErase) {
@@ -495,7 +488,10 @@ public class Board extends JFrame {
 	}
 
 	protected boolean checkEraseRow(){
-		if(erase_check){
+		if(erase_timer.isRunning()||erase_line_check!=0){
+			if(erase_line_check>=2){
+				erase_line_check=0;
+			}
 			return false;
 		}
 		int lowest = y + curr.height() -1;
@@ -523,13 +519,11 @@ public class Board extends JFrame {
 	}
 
 	protected void pressDown() throws IOException {
-		press_check=true;
 		if(y + curr.height() < HEIGHT) {
 			eraseCurr();
 			y++;
 		}
 		else{
-			press_check=false;
 			press_timer.stop();
 			placeBlock();
 			for(int i = y; i<y+curr.height(); i++) {
@@ -582,18 +576,18 @@ public class Board extends JFrame {
 			eraseCurr();
 			y++;
 		}
-		else if(isBlocked('d')&&curr.getShape(0,0)==6){
+		else if(isBlocked('d')&&curr.getClass().getName().contains("Press")){
 			placeBlock();
 			timer.stop();
 			press_timer.start();
 		}
 		else if(checkEraseRow()){
+			placeBlock();
 			timer.stop();
 			erase_timer.start();
 		}
 		else {
 			combo = line_erase_num;
-			erase_check=false;
 			placeBlock();
 			eraseRow();
 			combo = line_erase_num - combo;
@@ -606,7 +600,7 @@ public class Board extends JFrame {
 			if(isBlocked('d')){
 				timer.stop();
 				new EndGame(this.getLocation().x, this.getLocation().y, final_score, mode);
-				this.dispose();
+
 			}
 		}
 		placeBlock();
@@ -639,7 +633,7 @@ public class Board extends JFrame {
 		if(!ispaused){
 			ispaused = true;
 			timer.stop();
-			new Pause(this);
+			new Pause(this,gboard);
 
 		}
 		else{

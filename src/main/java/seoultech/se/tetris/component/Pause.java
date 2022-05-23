@@ -16,10 +16,12 @@ public class Pause extends JFrame {
     private JPanel menuPane;
     private JButton backGame, terminate;
     private Board board1;
+    private GameBoard gboard1;
 //    private Robot robot;
 
-    public Pause(Board board){
+    public Pause(Board board,GameBoard gboard){
         board1 = board;
+        gboard1=gboard;
         int frameW = DataManager.getInstance().getWeight();
         int frameH = DataManager.getInstance().getHeight();
         this.setSize(frameW, frameH/2);
@@ -67,7 +69,7 @@ public class Pause extends JFrame {
                         } else if (status == END) {
                             board1.reset();
                             new TetrisMenu(board1.getLocation().x, board1.getLocation().y);
-                            board1.dispose();
+                            gboard1.GameBoardDispose();
                             disPose();
                         }
                         break;

@@ -120,7 +120,8 @@ public class TetrisMenu extends JFrame {
                 mode = "normal";
                 DataManager.getInstance().setMode(mode);
                 mode = ScoreDataManager.getInstance().getNormKey();
-                new Board(this.getLocation().x, this.getLocation().y, mode);
+                new GameBoard(this.getLocation().x, this.getLocation().y, mode);
+
                 this.dispose();
                 break;
             case 1: //score board class
@@ -139,7 +140,7 @@ public class TetrisMenu extends JFrame {
                 mode = "item";
                 DataManager.getInstance().setMode(mode);
                 mode = ScoreDataManager.getInstance().getItemKey();
-                new Board(this.getLocation().x, this.getLocation().y, mode);
+                new GameBoard(this.getLocation().x, this.getLocation().y, mode);
                 this.dispose();
                 break;
             default:
