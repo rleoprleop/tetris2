@@ -103,7 +103,7 @@ public abstract class Block {
 			w=rn.nextInt(width());
 		}
 		int a=rn.nextInt(2)+1;
-		shape[h][w]+=(10*a);
+		shape[h][w]+=(10);
 //		System.out.println(Arrays.deepToString(shape));
 	}
 	public static void setItemMode(boolean a){item_mode=a;}
