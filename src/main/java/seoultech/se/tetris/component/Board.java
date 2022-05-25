@@ -91,6 +91,7 @@ public class Board extends JFrame {
 	private static int check_line;
 	private static int lev_block = NORMAL; //난이도. easy 72 normal 70 hard 68
 	private int score_diff;
+	private int timerflag;//timer flag
 
 	private int display_width,display_height,key_left,key_right,key_rotate,key_harddrop,key_pause,key_down;
 
@@ -218,6 +219,7 @@ public class Board extends JFrame {
 		placeBlock();
 		drawBoard();
 		timer.start();
+		timerflag=1;
 	}
 
 	private void setting() throws IOException {
@@ -330,7 +332,7 @@ public class Board extends JFrame {
 	}
 
 	private boolean isBlocked(char move){ //블럭이 갈 수 있는지 확인하는 함수('d' : 아래, 'r' : 오른쪽, 'l' : 왼쪽)
-		if(press_timer.isRunning()||erase_timer.isRunning())
+		if(timerflag==0)
 			return true;
 		if(move == 'd') { //down
 			if(y + curr.height() < HEIGHT) {
@@ -490,9 +492,7 @@ public class Board extends JFrame {
 
 	protected boolean checkEraseRow(){
 		if(erase_timer.isRunning()||erase_line_check!=0){
-			if(erase_line_check>=2){
-				erase_line_check=0;
-			}
+			erase_line_check=0;
 			return false;
 		}
 		int lowest = y + curr.height() -1;
@@ -536,6 +536,7 @@ public class Board extends JFrame {
 			}
 			drawBoard();
 			timer.start();
+			timerflag=1;
 			curr = next_block;
 			next_block = getRandomBlock();
 			x = 3;
@@ -580,14 +581,17 @@ public class Board extends JFrame {
 		else if(isBlocked('d')&&curr.getClass().getName().contains("Press")){
 			placeBlock();
 			timer.stop();
+			timerflag=0;
 			press_timer.start();
 		}
 		else if(checkEraseRow()){
 			placeBlock();
 			timer.stop();
+			timerflag=0;
 			erase_timer.start();
 		}
 		else {
+			timerflag=1;
 			combo = line_erase_num;
 			placeBlock();
 			eraseRow();
@@ -775,7 +779,7 @@ public class Board extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			if(!timer.isRunning()){
+			if(timerflag==0){
 				return;
 			}
 			try {
