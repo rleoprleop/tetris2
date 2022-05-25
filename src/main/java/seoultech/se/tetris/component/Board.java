@@ -181,6 +181,7 @@ public class Board extends JFrame {
 				if(sprint<SPMAX){
 					timer.setDelay(initInterval-sprint);
 				}
+				System.out.println(Arrays.deepToString(color_board));
 			}
 		});
 
@@ -208,6 +209,11 @@ public class Board extends JFrame {
 		board = new int[HEIGHT][WIDTH];
 		next_board = new int[NEXT_HEIGHT][NEXT_WIDTH];
 		color_board = new Color[HEIGHT][WIDTH];
+	/*	for(int i=0;i<HEIGHT;i++){
+			for(int j=0;j<WIDTH;j++){
+				color_board[i][j]=Color.white;
+			}
+		}*/
 		playerKeyListener = new PlayerKeyListener();
 		addKeyListener(playerKeyListener);
 		setFocusable(true);
@@ -266,12 +272,12 @@ public class Board extends JFrame {
 		//testRandomBlock();
 		Random rnd = new Random();
 
-		if(Block.getItem()){
+		/*if(Block.getItem()){
 			int i_block=rnd.nextInt(3);
 			if(i_block==2){
 				return new Press();
 			}
-		}
+		}*/
 		int block = rnd.nextInt(lev_block);//68 70 72 34 35 36
 		if(block<10)
 			return new OBlock();
@@ -423,6 +429,7 @@ public class Board extends JFrame {
 
 	protected void eraseLine(){
 		int lowest = y + curr.height() -1;
+		System.out.println("eL:"+lowest);
 		if(erase_line_check<2){
 			erase_line_check++;
 			for(int i=lowest;i>=y;i--){
@@ -446,6 +453,7 @@ public class Board extends JFrame {
 		int combo = 0;
 		int plusscore=0;
 		int lowest = y + curr.height() -1;
+		System.out.println("ER:"+lowest);
 		boolean earse = false;
 		for(int i = lowest; i>=y; i--){
 			boolean canErase = true;
