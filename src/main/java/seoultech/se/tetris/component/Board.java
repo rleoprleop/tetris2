@@ -177,10 +177,9 @@ public class Board extends JFrame {
 				}
 				drawBoard();
 				//System.out.println(timer.getDelay());
-				if(sprint>SPMAX){
-					sprint=SPMAX;
+				if(sprint<SPMAX){
+					timer.setDelay(initInterval-sprint);
 				}
-				timer.setDelay(initInterval-sprint);
 			}
 		});
 
@@ -776,6 +775,9 @@ public class Board extends JFrame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
+			if(!timer.isRunning()){
+				return;
+			}
 			try {
 				if(e.getKeyCode() == key_left && ispaused == false) {
 					moveLeft();
